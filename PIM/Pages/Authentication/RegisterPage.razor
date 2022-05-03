@@ -1,0 +1,45 @@
+﻿@page "/Auth/Register"
+
+@using PIM.Auth;
+@using PimModels.RequestModels
+
+@inject AuthStateProvider _authProvider;
+@inject NavigationManager _navManager;
+
+<h3>Register new user</h3>
+
+@if(!string.IsNullOrWhiteSpace(_authProvider.Message))
+{
+    <h1>@_authProvider.Message</h1>
+}
+
+<EditForm Model="@registerUser" OnValidSubmit="@SignUp" style="display: flex">
+    <div style="display: flex; flex-direction: column">
+        <label for="username">User Name</label>
+        <InputText id="username" @bind-Value="registerUser.Username" />
+        <label for="email">E-mail</label>
+        <InputText id="email" @bind-Value="registerUser.Email" />
+        <label for="password">Password</label>
+        <InputText type="password" id="password" @bind-Value="registerUser.Password" />
+        <label for="password2">Repeat password</label>
+        <InputText type="password" id="password2" @bind-Value="registerUser.Password2" />
+        <br />
+        <button type="submit">Register</button>
+    </div>
+    <div>
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+    </div>
+</EditForm>
+
+@code 
+{
+    private RegisterUser registerUser = new();
+
+    protected override Task OnInitializedAsync() => Task.FromResult(_authProvider.Message = "");
+
+    private async Task SignUp()
+    {
+        if (await _authProvider.RegisterAsync(registerUser)) registerUser = new();
+    }
+}

@@ -1,0 +1,53 @@
+﻿@using PIM.Auth
+@using PIM.Data
+@inherits LayoutComponentBase
+
+@inject AuthStateProvider _authPrivider
+@inject StateContainer _stateContainer
+
+<PageTitle>PIM</PageTitle>
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <AuthorizeView>
+                <Authorized>
+                    <a href="/auth/Logout">Logout</a>                    
+                    @if(_stateContainer.User != null)
+                    {
+                        <div>
+                        UserName: @_stateContainer.User.Username
+                        </div>
+                    }
+                    
+                </Authorized>
+                <NotAuthorized>     
+                    <a href="/auth/login">Login</a>
+                    <a href="/auth/register">Register</a>
+                </NotAuthorized>
+            </AuthorizeView>            
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code
+{
+    protected override async Task OnInitializedAsync()
+    {
+        _stateContainer.OnChange += StateHasChanged;
+      //  _authPrivider.GetCurrentUser();
+    }
+
+    public void Dispose()
+    {
+        _stateContainer.OnChange -= StateHasChanged;
+    }
+}

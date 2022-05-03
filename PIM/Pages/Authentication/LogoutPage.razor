@@ -1,0 +1,19 @@
+﻿@page "/Auth/Logout"
+
+@using PIM.Auth
+@using PIM.Data
+
+@inject AuthStateProvider _authProvider;
+@inject StateContainer _stateContainer;
+@inject NavigationManager _navManager;
+
+<h3>Logout</h3>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await _authProvider.LogoutAsync();
+        await _stateContainer.Reset();
+        _navManager.NavigateTo("/", true);
+    }
+}

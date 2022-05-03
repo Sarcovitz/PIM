@@ -1,0 +1,41 @@
+﻿@page "/Auth/Login"
+
+@using Blazored.LocalStorage
+@using PIM.Auth;
+@using PimModels.RequestModels
+
+@inject ILocalStorageService _localStorage;
+@inject NavigationManager _navManager;
+@inject AuthStateProvider _authProvider;
+
+<h3>Login</h3>
+
+@if(!string.IsNullOrWhiteSpace(_authProvider.Message))
+{
+    <h1>@_authProvider.Message</h1>
+}
+<EditForm Model="@loginUser" OnValidSubmit="@SignIn">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <label for="username">User Name</label> <br />
+    <InputText id="username" @bind-Value="loginUser.Username" /> <br />
+    <label for="password">Password</label><br />
+    <InputText type="password" id="password" @bind-Value="loginUser.Password" /><br /><br />
+
+    <button type="submit">Submit</button>
+</EditForm>
+
+@code 
+{
+    private LoginUser loginUser = new();
+        
+    protected override Task OnInitializedAsync() => Task.FromResult(_authProvider.Message = "");
+
+    private async Task SignIn()
+    {
+        await _authProvider.LoginAsync(loginUser);
+        if (_authProvider.Message != "") return;
+        _navManager.NavigateTo("/"); 
+    }
+}
