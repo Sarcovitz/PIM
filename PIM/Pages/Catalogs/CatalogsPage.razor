@@ -1,5 +1,40 @@
-﻿<h3>CatalogsPage</h3>
+﻿@page "/Catalogs"
+
+@inject NavigationManager _navManager
+
+@using PIM.Data.Services
+@using PimModels.Models
+
+@inject CatalogService _catalogService
+
+
+<h3>CatalogsPage</h3>
+
+@if(catalogs == null)
+{
+    <text> WAIT </text>
+}
+else
+{
+    @if (catalogs.Count == 0) 
+    {
+        _navManager.NavigateTo("/Catalogs/Create");
+    }
+    @foreach (var catalog in catalogs)
+    {
+        <div style="border: solid 2px black">
+            Catalog Name: @catalog.Name <br>
+            Default currency: @catalog.DefaultCurrencyCode <br>
+            Owner: @catalog.CatalogUsers.First(x => x.Role == CatalogUserRole.Owner).User.Username <br>
+        </div>
+    }
+}
 
 @code {
+    private List<Catalog> catalogs = null;
 
+    protected override async Task OnInitializedAsync()
+    {
+        catalogs = await _catalogService.GetCatalogsAsync();
+    }
 }

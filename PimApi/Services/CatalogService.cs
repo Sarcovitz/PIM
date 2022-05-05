@@ -16,13 +16,17 @@ public class CatalogService : ICatalogService
 
     public async Task<int?> CreateAsync(CreateCatalog createCatalog, int userId)
     {
+        if ((await GetAllAsync(userId)).Any(c => c.Name.ToLower() == createCatalog.Name.ToLower())) 
+            throw new Exception("This user already have catalog with the same name.");
+
         Catalog catalog = new Catalog(); 
         catalog.Name = createCatalog.Name;
-        catalog.DefaultCurrency = createCatalog.DefaultCurrency;
-        //catalog.DefualtCurrencyCode = createCatalog.DefaultCurrency.Code;
+        catalog.DefaultCurrencyCode = createCatalog.DefaultCurrencyCode;
 
         int? catalogId = await _catalogRepository.CreateAsync(catalog, userId);
 
         return catalogId;
     }
+
+    public async Task<List<Catalog>> GetAllAsync(int userId) => await _catalogRepository.GetAllAsync(userId);
 }

@@ -3,10 +3,11 @@
 public class CatalogUser
 {
     public int CatalogId { get; set; }
-    public Catalog Catalog { get; set; }
+    virtual public Catalog Catalog { get; set; }
 
     public int UserId { get; set; }
-    public User User { get; set; }
+    virtual public User User { get; set; }
+
     public CatalogUserRole Role { get; set; }
 }
 

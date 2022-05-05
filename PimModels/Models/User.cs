@@ -12,5 +12,5 @@ public class User
     public string? Email { get; set; }
     public string? Password { get; set; }
 
-    public List<CatalogUser> CatalogUsers { get; set; }
+    virtual public List<CatalogUser> CatalogUsers { get; set; }
 }

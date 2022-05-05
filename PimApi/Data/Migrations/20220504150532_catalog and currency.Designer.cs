@@ -11,8 +11,8 @@ using PimApi.Data;
 namespace PIM.Api.Data.Migrations
 {
     [DbContext(typeof(PimDbContext))]
-    [Migration("20220503150244_catalog")]
-    partial class catalog
+    [Migration("20220504150532_catalog and currency")]
+    partial class catalogandcurrency
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -33,8 +33,13 @@ namespace PIM.Api.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("DefaultCurrencyCode")
-                        .HasColumnType("integer");
+                    b.Property<string>("DefaultCurrencyCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DefualtCurrencyCode")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -67,12 +72,9 @@ namespace PIM.Api.Data.Migrations
 
             modelBuilder.Entity("PimModels.Models.Currency", b =>
                 {
-                    b.Property<int>("Code")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                    b.Property<string>("Code")
+                        .HasColumnType("text")
                         .HasColumnOrder(1);
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Code"));
 
                     b.Property<string>("Fullname")
                         .IsRequired()

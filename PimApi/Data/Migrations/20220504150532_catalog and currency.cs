@@ -5,7 +5,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace PIM.Api.Data.Migrations
 {
-    public partial class catalog : Migration
+    public partial class catalogandcurrency : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -14,8 +14,7 @@ namespace PIM.Api.Data.Migrations
                 schema: "PIM",
                 columns: table => new
                 {
-                    Code = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Code = table.Column<string>(type: "text", nullable: false),
                     Fullname = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -31,7 +30,8 @@ namespace PIM.Api.Data.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
-                    DefaultCurrencyCode = table.Column<int>(type: "integer", nullable: false)
+                    DefualtCurrencyCode = table.Column<string>(type: "text", nullable: false),
+                    DefaultCurrencyCode = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {

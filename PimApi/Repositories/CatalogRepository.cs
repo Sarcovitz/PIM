@@ -1,4 +1,5 @@
-﻿using PimApi.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using PimApi.Data;
 using PimApi.Repositories.Interfaces;
 using PimModels.Models;
 
@@ -35,4 +36,10 @@ public class CatalogRepository : ICatalogRepository
 
         return catalog.Id;
     }
+
+    public async Task<List<Catalog>> GetAllAsync(int userId)
+        => await _context.Catalogs.Where(c => c.CatalogUsers.Any(cu => cu.UserId == userId))
+                                  .Include(c => c.CatalogUsers).ThenInclude(cu => cu.User).ToListAsync();
+
+
 }

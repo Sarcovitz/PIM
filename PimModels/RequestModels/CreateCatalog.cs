@@ -10,5 +10,5 @@ public class CreateCatalog
     [StringLength(20, MinimumLength = 3, ErrorMessage = "Catalog name length must be between 3 and 20 characters long.")]
     public string Name { get; set; }
     [Required]
-    public Currency DefaultCurrency { get; set; }
+    public string DefaultCurrencyCode { get; set; }
 }

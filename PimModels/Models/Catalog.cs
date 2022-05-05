@@ -10,8 +10,8 @@ public class Catalog
     public int Id { get; set; }
     public string Name { get; set; }
 
-    //public int DefualtCurrencyCode { get; set; }
-    public Currency DefaultCurrency { get; set; }
+    public string DefaultCurrencyCode { get; set; }
+    virtual public Currency DefaultCurrency { get; set; }
 
-    public List<CatalogUser> CatalogUsers { get; set; }
+    virtual public List<CatalogUser> CatalogUsers { get; set; }
 }

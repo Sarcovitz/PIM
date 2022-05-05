@@ -1,16 +1,14 @@
 using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Web;
 using PIM.Auth;
 using PIM.Data;
+using PIM.Data.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
 
 //Storage
 builder.Services.AddBlazoredLocalStorage();
@@ -27,6 +25,10 @@ builder.Services.AddAuthorizationCore();
 
 //state containers
 builder.Services.AddScoped<StateContainer>();
+
+//Services
+builder.Services.AddScoped<CatalogService>();
+builder.Services.AddScoped<CurrencyService>();
 
 var app = builder.Build();
 

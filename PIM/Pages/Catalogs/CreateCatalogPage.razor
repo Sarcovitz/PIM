@@ -1,0 +1,57 @@
+﻿@page "/Catalogs/Create"
+
+@using PIM.Data.Services
+@using PimModels.Models
+@using PimModels.RequestModels
+
+@inject CurrencyService _currencyService
+@inject CatalogService _catalogService
+
+<h3>Create Catalog</h3>
+
+@if(!string.IsNullOrWhiteSpace(_catalogService.Message))
+{
+    <dialog open="true">@_catalogService.Message</dialog>
+}
+
+@if(currencies is null)
+{
+    <text>LOADING...</text>
+}
+
+<EditForm Model="@createCatalog" OnValidSubmit="@Create" style="display: flex">
+    <div style="display: flex; flex-direction: column">
+        <label for="name">Catalog name:</label>
+        <InputText id="name" @bind-Value="createCatalog.Name" />
+        <label for="defaultCurrency">Default currency:</label>
+        <InputSelect id="defaultCurrency" @bind-Value="createCatalog.DefaultCurrencyCode" >
+            <option value=""></option>
+            @foreach(var currency in currencies)
+            {
+                <option value="@currency.Code">@currency.Fullname</option>
+            }
+        </InputSelect>
+        <br />
+        <button type="submit">Register</button>
+    </div>
+    <div>
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+    </div>
+</EditForm>
+
+@code {
+    private CreateCatalog createCatalog = new();
+    private List<Currency> currencies = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        currencies = await _currencyService.GetAllAsync();
+    }
+
+    private async Task Create()
+    {
+        var resp = await _catalogService.CreateAsync(createCatalog);
+        if (resp > 0) createCatalog = new();
+    }
+}
