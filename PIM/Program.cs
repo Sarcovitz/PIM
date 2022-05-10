@@ -29,6 +29,7 @@ builder.Services.AddScoped<StateContainer>();
 //Services
 builder.Services.AddScoped<CatalogService>();
 builder.Services.AddScoped<CurrencyService>();
+builder.Services.AddScoped<UserService>();
 
 var app = builder.Build();
 

@@ -1,4 +1,6 @@
-﻿namespace PimModels.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace PimModels.Models;
 
 public class CatalogUser
 {

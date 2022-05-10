@@ -1,4 +1,4 @@
-﻿@page "/Catalogs"
+﻿@page "/Catalog/List"
 
 @inject NavigationManager _navManager
 
@@ -9,32 +9,36 @@
 
 
 <h3>CatalogsPage</h3>
+<a href="/Catalog/Create">ADD NEW CATALOG</a>
 
-@if(catalogs == null)
-{
-    <text> WAIT </text>
-}
+@if(catalogs == null) { <text> WAIT </text> }
 else
 {
-    @if (catalogs.Count == 0) 
+    @if (catalogs.Count == 0) { _navManager.NavigateTo("/Catalog/Create"); }
+    else
     {
-        _navManager.NavigateTo("/Catalogs/Create");
-    }
-    @foreach (var catalog in catalogs)
-    {
-        <div style="border: solid 2px black">
-            Catalog Name: @catalog.Name <br>
-            Default currency: @catalog.DefaultCurrencyCode <br>
-            Owner: @catalog.CatalogUsers.First(x => x.Role == CatalogUserRole.Owner).User.Username <br>
-        </div>
+        @foreach (var catalog in catalogs)
+        {
+            <div style="border: solid 2px black; display:flex;">
+                <div>
+                    Catalog Name: @catalog.Name <br>
+                    Default currency: @catalog.DefaultCurrencyCode <br>
+                    Owner: @catalog.CatalogUsers.First(x => x.Role == CatalogUserRole.Owner).User.Username <br>
+                </div>
+                <div>
+                    <a href="/Catalog/Delete/@catalog.Id">DELETE</a>
+                    <a href="/Catalog/Manage/@catalog.Id">MANAGE</a>
+                </div>
+            </div>
+        }
     }
 }
 
 @code {
-    private List<Catalog> catalogs = null;
+    private List<Catalog>? catalogs = null;
 
     protected override async Task OnInitializedAsync()
     {
-        catalogs = await _catalogService.GetCatalogsAsync();
+        catalogs = await _catalogService.GetAllAsync();
     }
 }

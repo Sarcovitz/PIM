@@ -18,9 +18,9 @@ public class CatalogService
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task<List<Catalog>> GetCatalogsAsync()
+    public async Task<List<Catalog>> GetAllAsync()
     {
-        var catalogs = new List<Catalog>();
+        List<Catalog> catalogs = new();
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/Catalog/GetAll");
         request.Headers.Authorization =
@@ -35,6 +35,23 @@ public class CatalogService
         return catalogs;
     }
 
+    public async Task<Catalog?> GetAsync(int id)
+    {
+        Catalog? catalog = new();
+
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/api/Catalog/Get/{id}");
+        request.Headers.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _localStorage.GetItemAsync<string>("token"));
+
+        var response = await _httpClientFactory.CreateClient("WebApi").SendAsync(request);
+        string content = await response.Content.ReadAsStringAsync();
+        try { response.EnsureSuccessStatusCode(); }
+        catch (Exception) { return null; }
+
+        catalog = JsonConvert.DeserializeObject<Catalog>(content);
+        return catalog;
+    }
+
     public async Task<int> CreateAsync(CreateCatalog createCatalog)
     {
         if (createCatalog is null)
@@ -42,10 +59,11 @@ public class CatalogService
             Message = "Error. Catalog data is empty.";
             return -1;
         }
+
         var request = new HttpRequestMessage(HttpMethod.Post, "/api/Catalog/Create");
         request.Content = new StringContent(JsonConvert.SerializeObject(createCatalog), Encoding.UTF8, "application/json");
         request.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _localStorage.GetItemAsync<string>("token")); 
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _localStorage.GetItemAsync<string>("token"));
 
         var response = await _httpClientFactory.CreateClient("WebApi").SendAsync(request);
         string content = await response.Content.ReadAsStringAsync();
@@ -58,5 +76,30 @@ public class CatalogService
 
         Message = "Catalog created successfully, now You can select it on catalog list";
         return JsonConvert.DeserializeObject<int>(content);
+    }
+
+    public async Task UpdateAsync(int catalogId, UpdateCatalog updateCatalog)
+    {
+        if (updateCatalog is null)
+        {
+            Message = "Error. Catalog data is empty.";
+            return;
+        }
+
+        var request = new HttpRequestMessage(HttpMethod.Put, $"/api/Catalog/Update/{catalogId}");
+        request.Content = new StringContent(JsonConvert.SerializeObject(updateCatalog), Encoding.UTF8, "application/json");
+        request.Headers.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _localStorage.GetItemAsync<string>("token"));
+
+        var response = await _httpClientFactory.CreateClient("WebApi").SendAsync(request);
+        string content = await response.Content.ReadAsStringAsync();
+        try { response.EnsureSuccessStatusCode(); }
+        catch (Exception)
+        {
+            Message = content;
+            return;
+        }
+
+        Message = "Catalog updated successfully.";
     }
 }

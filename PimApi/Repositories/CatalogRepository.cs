@@ -37,9 +37,15 @@ public class CatalogRepository : ICatalogRepository
         return catalog.Id;
     }
 
-    public async Task<List<Catalog>> GetAllAsync(int userId)
-        => await _context.Catalogs.Where(c => c.CatalogUsers.Any(cu => cu.UserId == userId))
-                                  .Include(c => c.CatalogUsers).ThenInclude(cu => cu.User).ToListAsync();
+    public async Task<List<Catalog>> GetUserCatalogsAsync(int userId)
+        => await _context.Catalogs.Where(c => c.CatalogUsers.Any(cu => cu.UserId == userId)).Include(c => c.CatalogUsers).ThenInclude(cu => cu.User).ToListAsync();//.ThenInclude(cu => cu.User).ToListAsync();
 
+    public async Task<Catalog?> GetByIdAsync(int catalogId)
+        => await _context.Catalogs.Where(c => c.Id == catalogId).Include(c => c.CatalogUsers).ThenInclude(c => c.User).FirstOrDefaultAsync();
 
+    public async Task<int> UpdateAsync(Catalog catalog)
+    {
+        _context.Catalogs.Update(catalog);
+        return await _context.SaveChangesAsync();
+    }
 }

@@ -1,17 +1,20 @@
-﻿@page "/Catalogs/Create"
+﻿@page "/Catalog/Create"
 
 @using PIM.Data.Services
 @using PimModels.Models
 @using PimModels.RequestModels
+@using PIM.Shared.Components
 
 @inject CurrencyService _currencyService
 @inject CatalogService _catalogService
 
 <h3>Create Catalog</h3>
 
+@*<Modal/>*@
+
 @if(!string.IsNullOrWhiteSpace(_catalogService.Message))
 {
-    <dialog open="true">@_catalogService.Message</dialog>
+    <text>@_catalogService.Message</text>
 }
 
 @if(currencies is null)
@@ -46,6 +49,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _catalogService.Message = "";
         currencies = await _currencyService.GetAllAsync();
     }
 

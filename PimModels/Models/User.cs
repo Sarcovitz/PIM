@@ -14,3 +14,9 @@ public class User
 
     virtual public List<CatalogUser> CatalogUsers { get; set; }
 }
+
+public enum UserRolesEnum
+{
+    Admin = 1,
+    User = 2,
+}

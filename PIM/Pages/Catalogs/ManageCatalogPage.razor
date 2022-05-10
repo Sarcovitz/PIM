@@ -1,5 +1,113 @@
-﻿<h3>ManagePage</h3>
+﻿@page "/Catalog/Manage/{catalogId:int}"
+
+@using PIM.Data.Services
+@using PimModels.Models
+@using PimModels.RequestModels
+
+@inject NavigationManager _navManager
+@inject CatalogService _catalogService
+@inject CurrencyService _currencyService
+@inject UserService _userService
+
+<h3>Manage Catalog</h3>
+
+@if(!string.IsNullOrWhiteSpace(_catalogService.Message))
+{
+    <text>@_catalogService.Message</text>
+}
+
+@if(catalog is null) { <text> WAIT WAIT WAIT</text>
+}
+else
+{
+    @if (catalog == new Catalog()) { _navManager.NavigateTo("/Catalog/List"); }
+    else
+    {
+        <EditForm Model="@updateCatalog" OnValidSubmit="@Update" style="display: flex">
+            <div style="display: flex; flex-direction: column">
+                <label for="name">Catalog name:</label>
+                <InputText id="name" @bind-Value="updateCatalog.Name" />
+                <label for="defaultCurrency">Default currency:</label>
+                <InputSelect id="defaultCurrency" @bind-Value="updateCatalog.DefaultCurrencyCode" >
+                    <option value=""></option>
+                    @foreach(var currency in currencies)
+                    {
+                        <option value="@currency.Code">@currency.Fullname</option>
+                    }
+                </InputSelect>
+                <br />
+                <text>Users:</text>
+                @if(updateCatalog.CatalogUsers.Where(x=>x.Role != CatalogUserRole.Owner).ToList().Count > 0)
+                {
+                    @foreach(var user in updateCatalog.CatalogUsers.Where(x=>x.Role != CatalogUserRole.Owner).ToList())
+                    {
+                        <text>@user.User.Username</text>
+                        <a @onclick=@(() => updateCatalog.CatalogUsers.Remove(user))> DELETE</a>
+                    }
+                }
+                <input type="text" @bind="@newUserUsername"></input>
+                <a @onclick=@(() => AddUserAsync(newUserUsername))> ADD NEW USER</a> <text>@addUserMessage</text>
+                <button type="submit">Register</button>
+            </div>
+            <div>
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+    </div>
+</EditForm>
+    }
+}
+
+
 
 @code {
+    [Parameter]
+    public int catalogId { get; set; }
+
+    private Catalog? catalog = null;
+    private UpdateCatalog updateCatalog = new();
+    private List<Currency> currencies = new();
+
+    private string newUserUsername = "";
+    private string addUserMessage = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        _catalogService.Message = "";
+        catalog = await _catalogService.GetAsync(catalogId);
+        currencies = await _currencyService.GetAllAsync();
+        updateCatalog.Name = catalog.Name;
+        updateCatalog.DefaultCurrencyCode = catalog.DefaultCurrencyCode;
+        updateCatalog.CatalogUsers = catalog.CatalogUsers;
+    }
+
+    private async Task Update()
+    {
+        await _catalogService.UpdateAsync(catalogId, updateCatalog);
+    }
+
+    private async void AddUserAsync(string username)
+    {
+        var user = await _userService.GetUserByNameAsync(username);
+        if(user is null) 
+        {
+            addUserMessage = "There is now User with this name";
+            StateHasChanged();
+            return;
+        }
+        else
+        {
+            if(updateCatalog.CatalogUsers.Any(x => x.UserId == user.Id))
+            {
+                addUserMessage = "User is already assigned to this catalog.";
+                StateHasChanged();
+                return;
+            }
+
+            updateCatalog.CatalogUsers.Add(new CatalogUser() { UserId = user.Id, User = user, CatalogId = catalogId, Role = CatalogUserRole.Worker });
+            addUserMessage = "Added.";
+            StateHasChanged();
+        }
+    }
+
 
 }

@@ -37,6 +37,7 @@ builder.Services.AddScoped<ICatalogRepository, CatalogRepository>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<ICurrencyRepository, CurrencyRepository>();
 
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 //authentication
