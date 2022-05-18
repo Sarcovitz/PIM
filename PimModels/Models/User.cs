@@ -12,9 +12,9 @@ public class User
     public string? Email { get; set; }
     public string? Password { get; set; }
 
-    virtual public List<CatalogUser> CatalogUsers { get; set; }
+    virtual public List<CatalogUser>? CatalogUsers { get; set; }
 }
-
+ 
 public enum UserRolesEnum
 {
     Admin = 1,

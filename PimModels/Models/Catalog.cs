@@ -11,7 +11,7 @@ public class Catalog
     public string Name { get; set; }
 
     public string DefaultCurrencyCode { get; set; }
-    virtual public Currency DefaultCurrency { get; set; }
+    virtual public Currency? DefaultCurrency { get; set; }
 
-    virtual public List<CatalogUser> CatalogUsers { get; set; }
+    virtual public List<CatalogUser>? CatalogUsers { get; set; }
 }

@@ -86,7 +86,7 @@ public class CatalogService
             return;
         }
 
-        var request = new HttpRequestMessage(HttpMethod.Put, $"/api/Catalog/Update/{catalogId}");
+        var request = new HttpRequestMessage(HttpMethod.Post, $"/api/Catalog/Update/{catalogId}");
         request.Content = new StringContent(JsonConvert.SerializeObject(updateCatalog), Encoding.UTF8, "application/json");
         request.Headers.Authorization =
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _localStorage.GetItemAsync<string>("token"));

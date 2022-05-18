@@ -1,6 +1,7 @@
 ﻿@page "/Catalog/Manage/{catalogId:int}"
 
 @using PIM.Data.Services
+@using PIM.Helpers
 @using PimModels.Models
 @using PimModels.RequestModels
 
@@ -39,21 +40,19 @@ else
                 <text>Users:</text>
                 @if(updateCatalog.CatalogUsers.Where(x=>x.Role != CatalogUserRole.Owner).ToList().Count > 0)
                 {
-                    @foreach(var user in updateCatalog.CatalogUsers.Where(x=>x.Role != CatalogUserRole.Owner).ToList())
+                    @foreach(var catalogUser in updateCatalog.CatalogUsers.Where(x=>x.Role != CatalogUserRole.Owner).ToList())
                     {
-                        <text>@user.User.Username</text>
-                        <a @onclick=@(() => updateCatalog.CatalogUsers.Remove(user))> DELETE</a>
+                        <text>@catalogUser.User.Username</text>
+                        <a @onclick=@(() => updateCatalog.CatalogUsers.Remove(catalogUser))> DELETE</a>
                     }
                 }
                 <input type="text" @bind="@newUserUsername"></input>
                 <a @onclick=@(() => AddUserAsync(newUserUsername))> ADD NEW USER</a> <text>@addUserMessage</text>
                 <button type="submit">Register</button>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
             </div>
-            <div>
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-    </div>
-</EditForm>
+    </EditForm>
     }
 }
 
@@ -82,7 +81,14 @@ else
 
     private async Task Update()
     {
-        await _catalogService.UpdateAsync(catalogId, updateCatalog);
+        var model = ReferenceHelper.DeepClone(updateCatalog);
+        foreach (var cu in model.CatalogUsers)
+        {
+            cu.User = null;
+            cu.Catalog = null;
+        }
+
+        await _catalogService.UpdateAsync(catalogId, model);
     }
 
     private async void AddUserAsync(string username)
@@ -103,7 +109,7 @@ else
                 return;
             }
 
-            updateCatalog.CatalogUsers.Add(new CatalogUser() { UserId = user.Id, User = user, CatalogId = catalogId, Role = CatalogUserRole.Worker });
+            updateCatalog.CatalogUsers.Add(new CatalogUser() { UserId = user.Id, User = user ,CatalogId = catalogId, Role = CatalogUserRole.Worker });
             addUserMessage = "Added.";
             StateHasChanged();
         }

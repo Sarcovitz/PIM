@@ -21,7 +21,8 @@ public class PimDbContext: DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql(_sqlConfig.ConnectionString);
+        optionsBuilder.UseNpgsql(_sqlConfig.ConnectionString);//.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+        optionsBuilder.EnableSensitiveDataLogging();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PimApi.Services.Interfaces;
+using PimModels.Models;
 
 namespace PimApi.Controllers
 {
@@ -13,10 +14,14 @@ namespace PimApi.Controllers
             _userService = userService;
         }
 
-        public async Task<IActionResult> Get([FromQuery]string username)
+        public async Task<IActionResult> Get([FromQuery]string? username, [FromQuery] int? id)
         {
-            var user = await _userService.GetUserByNameAsync(username);
-            if (user == null) return NotFound();
+            User? user = null;
+
+            if(id.HasValue) user = await _userService.GetUserByIdAsync(id.Value);
+            else if(!string.IsNullOrWhiteSpace(username)) user = await _userService.GetUserByNameAsync(username);
+
+            if (user == null) return NotFound("There is no User under this filter");
             user.Password = "";
             return Ok(user);
         }
