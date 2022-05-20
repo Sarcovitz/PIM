@@ -14,6 +14,7 @@ namespace PimApi.Controllers
             _userService = userService;
         }
 
+        [HttpGet]
         public async Task<IActionResult> Get([FromQuery]string? username, [FromQuery] int? id)
         {
             User? user = null;

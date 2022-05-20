@@ -1,10 +1,11 @@
 ﻿@page "/Catalog/List"
 
-@inject NavigationManager _navManager
-
+@using PIM.Data
 @using PIM.Data.Services
 @using PimModels.Models
 
+@inject NavigationManager _navManager
+@inject StateContainer _stateContainer
 @inject CatalogService _catalogService
 
 
@@ -26,6 +27,7 @@ else
                     Owner: @catalog.CatalogUsers.First(x => x.Role == CatalogUserRole.Owner).User.Username <br>
                 </div>
                 <div>
+                    @if(_stateContainer.Catalog != catalog) {<a @onclick="async () => await _stateContainer.SetCatalog(catalog)">SELECT</a>}
                     <a href="/Catalog/Delete/@catalog.Id">DELETE</a>
                     <a href="/Catalog/Manage/@catalog.Id">MANAGE</a>
                 </div>

@@ -6,6 +6,6 @@ namespace PimModels.Models;
 public class Currency
 {
     [Key, Column(Order = 1)]
-    public string Code { get; set; }
-    public string Fullname { get; set; }
+    public string? Code { get; set; }
+    public string? Fullname { get; set; }
 }

@@ -8,7 +8,7 @@ using PimModels.RequestModels;
 namespace PimApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]/[action]")]
+[Route("api/[controller]")]
 public class CatalogController : ControllerBase
 {
     private readonly ICatalogService _catalogService;
@@ -19,6 +19,7 @@ public class CatalogController : ControllerBase
 
     [Authorize]
     [HttpPost]
+    [Route("[action]")]
     public async Task<IActionResult> Create([FromBody] CreateCatalog createCatalog)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -32,6 +33,7 @@ public class CatalogController : ControllerBase
 
     [Authorize]
     [HttpGet]
+    [Route("[action]")]
     public async Task<IActionResult> GetAll()
     {
         int userId = Convert.ToInt32(User.FindFirst("Id").Value);
@@ -43,7 +45,7 @@ public class CatalogController : ControllerBase
 
     [Authorize]
     [HttpGet]
-    [Route("{catalogId:int}")]
+    [Route("[action]/{catalogId:int}")]
     public async Task<IActionResult> Get([FromRoute] int catalogId)
     {
         int userId = Convert.ToInt32(User.FindFirst("Id").Value);
@@ -57,7 +59,7 @@ public class CatalogController : ControllerBase
 
     [Authorize]
     [HttpPost]
-    [Route("{catalogId:int}")]
+    [Route("[action]/{catalogId:int}")]
     public async Task<IActionResult> Update([FromRoute] int catalogId, [FromBody] UpdateCatalog updateCatalog)
     {
         if(!ModelState.IsValid) return BadRequest();
@@ -67,6 +69,14 @@ public class CatalogController : ControllerBase
         if (resp <= 0) return BadRequest();
         return Ok();
         
+    }
+
+    [Authorize]
+    [HttpGet]
+    [Route("{catalogId:int}/Products")]
+    public async Task<IActionResult> GetCatalogProducts([FromRoute] int catalogId)
+    {
+        return Ok();
     }
 
 }

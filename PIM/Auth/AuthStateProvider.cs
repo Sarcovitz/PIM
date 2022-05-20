@@ -27,19 +27,19 @@ public class AuthStateProvider : AuthenticationStateProvider
 
     private string token;
 
-    public override async Task<AuthenticationState> GetAuthenticationStateAsync() => await GenerateAuthenticationState(await GetToken());
+    public override async Task<AuthenticationState> GetAuthenticationStateAsync() => await (await GenerateAuthenticationState(await GetToken()));
 
     public async Task LoginAsync(LoginUser loginUser)
     {
         Message = "";
         await SetToken(loginUser);
-        NotifyAuthenticationStateChanged(GenerateAuthenticationState(token));
+        NotifyAuthenticationStateChanged(await GenerateAuthenticationState(token));
     }
 
     public async Task LogoutAsync()
     {
         await SetToken(null);
-        NotifyAuthenticationStateChanged(GenerateAuthenticationState(token));
+        NotifyAuthenticationStateChanged(await GenerateAuthenticationState(token));
     }
 
     public async Task<bool> RegisterAsync(RegisterUser registerUser)
@@ -117,7 +117,7 @@ public class AuthStateProvider : AuthenticationStateProvider
         await _localStorage.SetItemAsync("loginUser", loginUser);
     }
 
-    private Task<AuthenticationState> GenerateAuthenticationState(string token)
+    private async Task<Task<AuthenticationState>> GenerateAuthenticationState(string token)
     {
         if (string.IsNullOrWhiteSpace(token)) return Task.FromResult(new AuthenticationState(new ClaimsPrincipal()));
 
@@ -125,9 +125,11 @@ public class AuthStateProvider : AuthenticationStateProvider
         var user = new ClaimsPrincipal(identity);
         var state = new AuthenticationState(user);
 
-        GetCurrentUser();
+        return await GetCurrentUser() ? Task.FromResult(state) : Task.FromResult(new AuthenticationState(new ClaimsPrincipal()));
 
-        return Task.FromResult(state);
+        //return Task.FromResult(new AuthenticationState(new ClaimsPrincipal()));
+
+        //return Task.FromResult(state);
     }
 
     private IEnumerable<Claim> ParseClaimsFromJwt(string token)
@@ -148,7 +150,7 @@ public class AuthStateProvider : AuthenticationStateProvider
         return Convert.FromBase64String(base64);
     }
 
-    public async void GetCurrentUser()
+    public async Task<bool> GetCurrentUser()
     {
         var request = new HttpRequestMessage(HttpMethod.Get, "/api/Authentication/CurrentUser");
         request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _localStorage.GetItemAsync<string>("token"));
@@ -156,10 +158,12 @@ public class AuthStateProvider : AuthenticationStateProvider
         var response = await _httpClientFactory.CreateClient("WebApi").SendAsync(request);
         string content = await response.Content.ReadAsStringAsync();
         try { response.EnsureSuccessStatusCode(); }
-        catch (Exception) { return; }
+        catch (Exception) { return false; }
 
         User? user = JsonConvert.DeserializeObject<User>(content);
 
         await _stateContainer.SetUser(user);
+
+        return _stateContainer.User is null ? false : true;
     }
 }

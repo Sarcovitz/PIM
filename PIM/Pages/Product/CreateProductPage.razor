@@ -1,0 +1,23 @@
+﻿@page "/Product/Create"
+
+@using PIM.Data
+@using PIM.Data.Services
+@using PimModels.Models
+@using PimModels.RequestModels
+
+@inject ProductService _productService
+@inject StateContainer _stateContainer 
+
+<h3>CreateProductPage</h3>
+
+@code {
+    CreateProduct createProduct = new();
+    List<Category> categories = new();
+
+    protected override async  Task OnInitializedAsync()
+    {
+        _productService.Message = "";
+
+    }
+
+}

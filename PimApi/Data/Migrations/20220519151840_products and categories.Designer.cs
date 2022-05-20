@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PimApi.Data;
@@ -11,9 +12,10 @@ using PimApi.Data;
 namespace PIM.Api.Data.Migrations
 {
     [DbContext(typeof(PimDbContext))]
-    partial class PimDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220519151840_products and categories")]
+    partial class productsandcategories
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,21 +24,6 @@ namespace PIM.Api.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("CategoryProductAttributeProto", b =>
-                {
-                    b.Property<int>("AttributeProtosId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("CategoriesId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("AttributeProtosId", "CategoriesId");
-
-                    b.HasIndex("CategoriesId");
-
-                    b.ToTable("CategoryProductAttributeProto", "PIM");
-                });
 
             modelBuilder.Entity("PimModels.Models.Catalog", b =>
                 {
@@ -151,65 +138,6 @@ namespace PIM.Api.Data.Migrations
                     b.ToTable("Products", "PIM");
                 });
 
-            modelBuilder.Entity("PimModels.Models.ProductAttribute", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnOrder(1);
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AttributeProtoId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AttributeProtoId");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("ProductAttributes", "PIM");
-                });
-
-            modelBuilder.Entity("PimModels.Models.ProductAttributeProto", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnOrder(1);
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AttributeType")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("CatalogId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("DefaultValue")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PossibleValues")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CatalogId");
-
-                    b.ToTable("ProductAttributeProtos", "PIM");
-                });
-
             modelBuilder.Entity("PimModels.Models.User", b =>
                 {
                     b.Property<int>("Id")
@@ -237,21 +165,6 @@ namespace PIM.Api.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Users", "PIM");
-                });
-
-            modelBuilder.Entity("CategoryProductAttributeProto", b =>
-                {
-                    b.HasOne("PimModels.Models.ProductAttributeProto", null)
-                        .WithMany()
-                        .HasForeignKey("AttributeProtosId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PimModels.Models.Category", null)
-                        .WithMany()
-                        .HasForeignKey("CategoriesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("PimModels.Models.Catalog", b =>
@@ -311,41 +224,9 @@ namespace PIM.Api.Data.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("PimModels.Models.ProductAttribute", b =>
-                {
-                    b.HasOne("PimModels.Models.ProductAttributeProto", "AttributeProto")
-                        .WithMany("ProductAttributes")
-                        .HasForeignKey("AttributeProtoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PimModels.Models.Product", "Product")
-                        .WithMany("ProductAttributes")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AttributeProto");
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("PimModels.Models.ProductAttributeProto", b =>
-                {
-                    b.HasOne("PimModels.Models.Catalog", "Catalog")
-                        .WithMany("ProductAttributeProtos")
-                        .HasForeignKey("CatalogId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Catalog");
-                });
-
             modelBuilder.Entity("PimModels.Models.Catalog", b =>
                 {
                     b.Navigation("CatalogUsers");
-
-                    b.Navigation("ProductAttributeProtos");
 
                     b.Navigation("Products");
                 });
@@ -355,16 +236,6 @@ namespace PIM.Api.Data.Migrations
                     b.Navigation("Products");
 
                     b.Navigation("SubCategories");
-                });
-
-            modelBuilder.Entity("PimModels.Models.Product", b =>
-                {
-                    b.Navigation("ProductAttributes");
-                });
-
-            modelBuilder.Entity("PimModels.Models.ProductAttributeProto", b =>
-                {
-                    b.Navigation("ProductAttributes");
                 });
 
             modelBuilder.Entity("PimModels.Models.User", b =>
