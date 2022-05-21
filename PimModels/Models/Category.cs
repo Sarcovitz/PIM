@@ -14,6 +14,10 @@ public  class Category
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     public string Name { get; set; }
+
+    public int CatalogId { get; set; }
+    virtual public Catalog Catalog { get; set; }
+
     public int? ParentCategoryId { get; set; } = null;
     virtual public Category? ParentCategory { get; set; }
 

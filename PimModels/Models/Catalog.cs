@@ -12,7 +12,7 @@ public class Catalog
 
     public string? DefaultCurrencyCode { get; set; }
     virtual public Currency? DefaultCurrency { get; set; }
-
+    virtual public List<Category> Categories { get; set; }
     virtual public List<Product>? Products { get; set; } 
     virtual public List<CatalogUser>? CatalogUsers { get; set; }
     virtual public List<ProductAttributeProto>? ProductAttributeProtos { get; set; }

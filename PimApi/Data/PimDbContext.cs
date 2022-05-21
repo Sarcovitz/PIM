@@ -48,6 +48,7 @@ public class PimDbContext: DbContext
         var category = modelBuilder.Entity<Category>();
         category.ToTable("Categories");
         category.HasOne(x => x.ParentCategory).WithMany(x => x.SubCategories).HasForeignKey(x => x.ParentCategoryId).OnDelete(DeleteBehavior.Cascade);
+        category.HasOne(x => x.Catalog).WithMany(x => x.Categories).HasForeignKey(x => x.CatalogId).OnDelete(DeleteBehavior.Cascade);
 
         var currency = modelBuilder.Entity<Currency>();
         currency.ToTable("Currencies");

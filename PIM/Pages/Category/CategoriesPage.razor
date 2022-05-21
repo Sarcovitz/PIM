@@ -1,0 +1,17 @@
+﻿@page "/Categories"
+
+@using PimModels.Models
+@using PIM.Data.Services
+
+@inject CategoryService _categoryService
+
+<h3>CategoriesPage</h3>
+
+@code {
+    private List<Category>? catalogs = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        //catalogs = await _categoryService.GetAllAsync();
+    }
+}

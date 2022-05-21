@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PimApi.Data;
@@ -11,9 +12,10 @@ using PimApi.Data;
 namespace PIM.Api.Data.Migrations
 {
     [DbContext(typeof(PimDbContext))]
-    partial class PimDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220520122755_catlog-category-relation")]
+    partial class catlogcategoryrelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

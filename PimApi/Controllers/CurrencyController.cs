@@ -6,7 +6,7 @@ namespace PimApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]/[action]")]
-    public class CurrencyController : Controller
+    public class CurrencyController : ControllerBase
     {
         private readonly ICurrencyService _currencyService;
         public CurrencyController(ICurrencyService currencyService)
