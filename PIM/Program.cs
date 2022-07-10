@@ -27,8 +27,11 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<StateContainer>();
 
 //Services
+builder.Services.AddScoped<AttributeService>();
 builder.Services.AddScoped<CatalogService>();
+builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<CurrencyService>();
+builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<UserService>();
 
 var app = builder.Build();

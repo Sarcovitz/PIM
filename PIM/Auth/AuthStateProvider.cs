@@ -27,7 +27,7 @@ public class AuthStateProvider : AuthenticationStateProvider
 
     private string token;
 
-    public override async Task<AuthenticationState> GetAuthenticationStateAsync() => await (await GenerateAuthenticationState(await GetToken()));
+    public override async Task<AuthenticationState> GetAuthenticationStateAsync() => await await GenerateAuthenticationState(await GetToken());
 
     public async Task LoginAsync(LoginUser loginUser)
     {

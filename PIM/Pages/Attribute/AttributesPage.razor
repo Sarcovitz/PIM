@@ -1,0 +1,41 @@
+﻿@page "/Attributes"
+
+@using PIM.Data.Services
+@using PimModels.Models
+
+@inject AttributeService _attributeService
+@inject NavigationManager _navManager
+
+<h3>AttributesPage</h3>
+
+<a href="/Attribute/Create">ADD NEW CATALOG</a>
+
+@if(attributeProtos == null) { <text> WAIT </text> }
+else
+{
+    @if (attributeProtos.Count == 0) { _navManager.NavigateTo("/Attribute/Create"); }
+    else
+    {
+        @foreach (var attributeProto in attributeProtos)
+        {
+            <div style="border: solid 2px black; display:flex;">
+                <div>
+                    Catalog Name: @attributeProto.Name <br>
+                </div>
+                <div>
+                    <a href="/Attribute/Delete/@attributeProto.Id">DELETE</a>
+                    <a href="/Attribute/Manage/@attributeProto.Id">MANAGE</a>
+                </div>
+            </div>
+        }
+    }
+}
+
+@code {
+    private List<ProductAttributeProto>? attributeProtos = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        attributeProtos = await _attributeService.GetAllProtosAsync();
+    }
+}

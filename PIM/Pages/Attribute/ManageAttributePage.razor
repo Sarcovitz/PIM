@@ -1,0 +1,153 @@
+﻿@page "/Attribute/Manage/{attributeProtoId:int}"
+
+@using PIM.Data.Services
+@using PimModels.Models
+@using PimModels.RequestModels
+
+@inject AttributeService _attributeService
+@inject NavigationManager _navManager
+
+<h3>ManageAttributePage</h3>
+
+@if(!string.IsNullOrWhiteSpace(_attributeService.Message))
+{
+    <text>@_attributeService.Message</text>
+}
+
+@if(productAttributeProto is null) 
+{ 
+    <text> WAIT WAIT WAIT</text>
+}
+else
+{
+    @if (productAttributeProto == new ProductAttributeProto()) { _navManager.NavigateTo("/Attribute/List"); }
+    else
+    {
+        <EditForm Model="@updateProductAttributeProto" OnValidSubmit="@Update" style="display: flex">
+            <div style="display: flex; flex-direction: column">
+                <label for="name">Attribute name:</label>
+                <InputText id="name" @bind-Value="updateProductAttributeProto.Name" />
+                <text>@updateProductAttributeProto.AttributeType.ToString()</text>
+                <br />
+                @if(updateProductAttributeProto.AttributeType == AttributeTypeEnum.List)
+                {
+                    <text>Possible Values:</text>
+                    <input type="text" @bind="possibleValue">
+                    <button type="button"  @onclick="() => AddPossibleValue(possibleValue)"> Dodaj </button>
+                    @foreach(var value in possibleValues)
+                    {
+                        <text>@value</text> 
+                        <button type="button" @onclick="() => SetDefaultForList(value)"> set default</button> 
+                        <button type="button" @onclick="() => possibleValues.Remove(value)"> delete</button><br>
+
+                    }
+                }
+                <label for="defaultValue">Default value:</label>
+                @if(new List<AttributeTypeEnum>() { AttributeTypeEnum.List, AttributeTypeEnum.Bool }.Contains(updateProductAttributeProto.AttributeType))
+                {
+                    <InputText id="defaultValue" disabled="true" @bind-Value="updateProductAttributeProto.DefaultValue" />
+                }
+                else 
+                {
+                    <InputText id="defaultValue" @bind-Value="updateProductAttributeProto.DefaultValue" />
+                }
+                @if (updateProductAttributeProto.AttributeType == AttributeTypeEnum.Bool)
+                {
+                    <input type="checkbox" checked="@(updateProductAttributeProto.DefaultValue == "True")" @onchange="SetDefaultForBool">
+                }
+                <button type="submit">Register</button>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+            </div>
+    </EditForm>
+    }
+}
+
+@code
+{
+    [Parameter]
+    public int attributeProtoId { get; set; }
+
+    private ProductAttributeProto? productAttributeProto = new();
+    private UpdateProductAttributeProto updateProductAttributeProto = new();
+    private List<string> possibleValues = new();
+
+    private string possibleValue = "";
+    private bool defaultBool = false;
+
+
+    protected async override Task OnInitializedAsync()
+    {
+        _attributeService.Message = "";
+        productAttributeProto = await _attributeService.GetProto(attributeProtoId);
+        updateProductAttributeProto.Name = productAttributeProto.Name;
+        updateProductAttributeProto.AttributeType = productAttributeProto.AttributeType;
+        updateProductAttributeProto.DefaultValue = productAttributeProto.DefaultValue;
+        updateProductAttributeProto.PossibleValues = productAttributeProto.PossibleValues;
+        if(productAttributeProto.PossibleValues is not null) possibleValues = updateProductAttributeProto.PossibleValues.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+    }
+
+    private async Task Update()
+    {
+        if (updateProductAttributeProto.AttributeType == AttributeTypeEnum.List) 
+        {
+            if (possibleValues.Count <= 0) _attributeService.Message = "When attribute type is list you need to add at least one possible value.";
+            else if(!possibleValues.Contains(updateProductAttributeProto.DefaultValue) && !string.IsNullOrWhiteSpace(updateProductAttributeProto.DefaultValue))
+            {
+                _attributeService.Message = "Dafault value must be in the list of values.";
+                return;
+            }
+            else
+            {
+                updateProductAttributeProto.PossibleValues = "";
+                foreach(var val in possibleValues) updateProductAttributeProto.PossibleValues += val + ","; 
+            }
+        }
+        //else if (updateProductAttributeProto.AttributeType == AttributeTypeEnum.Bool) updateProductAttributeProto.DefaultValue = defaultBool.ToString();
+        else if(updateProductAttributeProto.AttributeType == AttributeTypeEnum.Integer)
+        {
+            try { updateProductAttributeProto.DefaultValue = Convert.ToInt32(updateProductAttributeProto.DefaultValue).ToString(); }
+            catch(Exception ex)
+            {
+                _attributeService.Message = "Default value must be an integer number";
+                return;
+            }
+        }
+        else if(updateProductAttributeProto.AttributeType == AttributeTypeEnum.Float)
+        {            
+            try
+            {
+                updateProductAttributeProto.DefaultValue = updateProductAttributeProto.DefaultValue.Replace('.', ',');
+                updateProductAttributeProto.DefaultValue = Convert.ToDecimal(updateProductAttributeProto.DefaultValue).ToString();
+            }
+            catch(Exception ex)
+            {
+                _attributeService.Message = "Default value must be a floating point number";
+                return;
+            }
+        }
+        
+        await _attributeService.UpdateProtoAsync(attributeProtoId,updateProductAttributeProto);
+    }
+
+    private void AddPossibleValue(string val)
+    {
+        if (string.IsNullOrWhiteSpace(val)) return;
+        else if(val.Contains(','))
+        {
+            _attributeService.Message = "values can not contain commas";
+            return;
+        }
+        else if(possibleValues.Contains(val))
+        {
+            _attributeService.Message = "this value already exists in list of values";
+            return;
+        }
+        possibleValues.Add(val);
+        possibleValue = "";
+    }
+
+    private void SetDefaultForList(string val) => updateProductAttributeProto.DefaultValue = val;
+
+    private void SetDefaultForBool(ChangeEventArgs e) => updateProductAttributeProto.DefaultValue = (bool)e.Value ? "True" : "False";
+}

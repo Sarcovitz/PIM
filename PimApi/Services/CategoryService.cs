@@ -1,12 +1,20 @@
-﻿using PimApi.Services.Interfaces;
+﻿using PimApi.Repositories.Interfaces;
+using PimApi.Services.Interfaces;
 using PimModels.Models;
 
 namespace PimApi.Services;
 
 public class CategoryService : ICategoryService
 {
-    public Task<List<Category>> GetAllCategories(int? catalogId)
+    private readonly ICategoryRepository _categoryRepository;
+    public CategoryService(ICategoryRepository categoryRepository)
     {
-        throw new NotImplementedException();
+        _categoryRepository = categoryRepository;
+    }
+
+    public async Task<List<Category>> GetAllCategories(int? catalogId)
+    {
+        if (catalogId.HasValue) return await _categoryRepository.GetAllInCatalog(catalogId.Value);
+        else return await _categoryRepository.GetAll();
     }
 }

@@ -42,7 +42,7 @@ public class AuthenticationService : IAuthenticationService
                 new Claim("Email", user.Email.ToString()),
                 new Claim("Id", user.Id.ToString())
             }),
-            Expires = DateTime.UtcNow.AddDays(1),
+            Expires = DateTime.UtcNow.AddHours(1),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);

@@ -14,8 +14,8 @@ public class ProductAttributeProto
     public string? PossibleValues { get; set; } = null;
 
     public int CatalogId { get; set; }
-    virtual public Catalog Catalog { get; set; }
-    virtual public List<ProductAttribute> ProductAttributes { get; set; }
+    virtual public Catalog? Catalog { get; set; }
+    virtual public List<ProductAttribute>? ProductAttributes { get; set; }
     virtual public List<Category>? Categories { get; set; }
 
 }

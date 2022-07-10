@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using PimApi.Services.Interfaces;
+using PimModels.Models;
 
 namespace PimApi.Controllers;
 
@@ -13,9 +15,12 @@ public class CategoryController : ControllerBase
         _categoryService = categoryService;
     }
 
-    public async Task<IActionResult> GetAll([FromRoute] int? catalogId)
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> GetAll([FromQuery] int? catalogId)
     {
-
-        return Ok();
+        var categories = new List<Category>();
+        categories = await _categoryService.GetAllCategories(catalogId);
+        return Ok(categories);
     }
 }

@@ -1,0 +1,152 @@
+﻿@page "/Attribute/Create"
+
+@using PIM.Data
+@using PIM.Data.Services
+@using PimModels.RequestModels
+@using PimModels.Models
+
+@inject AttributeService _attributeService
+@inject CategoryService _categoryService
+@inject StateContainer _stateContainer
+
+
+<h3>Create Catalog</h3>
+
+@*<Modal/>*@
+
+@if(!string.IsNullOrWhiteSpace(_attributeService.Message))
+{
+    <text>@_attributeService.Message</text>
+}
+
+@if(categories is null)
+{
+    <text>LOADING...</text>
+}
+
+<EditForm Model="@createProductAttributeProto" OnValidSubmit="@Create" style="display: flex">
+    <div style="display: flex; flex-direction: column">
+        <label for="name">Attribute name:</label>
+        <InputText id="name" @bind-Value="createProductAttributeProto.Name" />
+        <label for="attributeType">Type:</label>
+        <InputRadioGroup id="attributeType" @bind-Value="createProductAttributeProto.AttributeType"> 
+            @foreach(var type in Enum.GetValues(typeof(AttributeTypeEnum)))
+            {
+                <InputRadio type="radio" Value="@type"></InputRadio>
+                <text>@type</text>                
+            }            
+        </InputRadioGroup>
+        @if(createProductAttributeProto.AttributeType == AttributeTypeEnum.List)
+        {
+            <text>Possible Values:</text>
+            <input type="text" @bind="possibleValue">
+            <button type="button"  @onclick="() => AddPossibleValue(possibleValue)"> Dodaj </button>
+            @foreach(var value in possibleValues)
+            {
+                <text>@value</text> 
+                <button type="button" @onclick="() => SetDefaultForList(value)"> set default</button>
+                <button type="button" @onclick="() => possibleValues.Remove(value)"> delete</button><br>
+            }
+        }
+        <label for="defaultValue">Default value:</label>
+        @if(new List<AttributeTypeEnum>() { AttributeTypeEnum.List, AttributeTypeEnum.Bool }.Contains(createProductAttributeProto.AttributeType))
+        {
+            <InputText id="defaultValue" disabled="true" @bind-Value="createProductAttributeProto.DefaultValue" />
+        }
+        else 
+        {
+            <InputText id="defaultValue" @bind-Value="createProductAttributeProto.DefaultValue" />
+        }
+        
+        @if (createProductAttributeProto.AttributeType == AttributeTypeEnum.Bool)
+        {
+            <input type="checkbox" @onchange="SetDefaultForBool">
+        }
+
+        <br />
+        <button type="submit">Register</button>
+    </div>
+    <div>
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+    </div>
+</EditForm>
+
+@code {
+    private CreateProductAttributeProto createProductAttributeProto = new();
+    private List<string> possibleValues = new();
+    private List<Category> categories = new();
+    private string possibleValue = "";
+    private bool defaultBool = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _attributeService.Message = "";
+        categories = await _categoryService.GetAllAsync();
+    }
+
+    private async Task Create()
+    {
+        createProductAttributeProto.CatalogId = _stateContainer.Catalog.Id;
+        if (createProductAttributeProto.AttributeType == AttributeTypeEnum.List) 
+        {
+            if (possibleValues.Count <= 0) _attributeService.Message = "When attribute type is list you need to add at least one possible value.";
+            else if(!possibleValues.Contains(createProductAttributeProto.DefaultValue) && !string.IsNullOrWhiteSpace(createProductAttributeProto.DefaultValue))
+            {
+                _attributeService.Message = "Dafault value must be in the list of values.";
+                return;
+            }
+            else
+            {
+                createProductAttributeProto.PossibleValues = "";
+                foreach(var val in possibleValues) createProductAttributeProto.PossibleValues += val + ","; 
+            }
+        }
+        //else if (createProductAttributeProto.AttributeType == AttributeTypeEnum.Bool) createProductAttributeProto.DefaultValue = defaultBool.ToString();
+        else if(createProductAttributeProto.AttributeType == AttributeTypeEnum.Integer)
+        {
+            try { createProductAttributeProto.DefaultValue = Convert.ToInt32(createProductAttributeProto.DefaultValue).ToString(); }
+            catch(Exception ex)
+            {
+                _attributeService.Message = "Default value must be an integer number";
+                return;
+            }
+        }
+        else if(createProductAttributeProto.AttributeType == AttributeTypeEnum.Float)
+        {            
+            try
+            {
+                createProductAttributeProto.DefaultValue = createProductAttributeProto.DefaultValue.Replace('.', ',');
+                createProductAttributeProto.DefaultValue = Convert.ToDecimal(createProductAttributeProto.DefaultValue).ToString();
+            }
+            catch(Exception ex)
+            {
+                _attributeService.Message = "Default value must be a floating point number";
+                return;
+            }
+        }
+        var resp = await _attributeService.CreateProtoAsync(createProductAttributeProto);
+        if (resp > 0) createProductAttributeProto = new();
+    }
+
+    private void AddPossibleValue(string val)
+    {
+        if (string.IsNullOrWhiteSpace(val)) return;
+        else if(val.Contains(','))
+        {
+            _attributeService.Message = "values can not contain commas";
+            return;
+        }
+        else if(possibleValues.Contains(val))
+        {
+            _attributeService.Message = "this value already exists in list of values";
+            return;
+        }
+        possibleValues.Add(val);
+        possibleValue = "";
+    }
+
+    private void SetDefaultForList(string val) => createProductAttributeProto.DefaultValue = val;
+
+    private void SetDefaultForBool(ChangeEventArgs e) => createProductAttributeProto.DefaultValue = (bool)e.Value ? "True" : "False";
+}

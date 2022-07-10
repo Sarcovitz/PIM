@@ -1,17 +1,43 @@
 ﻿@page "/Categories"
 
+@using PIM.Data
 @using PimModels.Models
 @using PIM.Data.Services
 
 @inject CategoryService _categoryService
+@inject StateContainer _stateContainer
+@inject NavigationManager _navManager
 
 <h3>CategoriesPage</h3>
+<a href="/Category/Create">ADD NEW category</a>
 
+@if(categories == null) { <text> WAIT </text> }
+else
+{
+    @if (categories.Count == 0) { _navManager.NavigateTo("/Category/Create"); }
+    else
+    {
+        @foreach (var category in categories)
+        {
+            <div style="border: solid 2px black; display:flex;">
+                <div>
+                    Catalog Name: @category.Name <br>
+                    Default currency: @category.ParentCategory <br>
+                    Owner: @category.SubCategories.Count <br>
+                </div>
+                <div>
+                    <a href="/Category/Delete/@category.Id">DELETE</a>
+                    <a href="/Category/Manage/@category.Id">MANAGE</a>
+                </div>
+            </div>
+        }
+    }
+}
 @code {
-    private List<Category>? catalogs = null;
+    private List<Category>? categories = null;
 
     protected override async Task OnInitializedAsync()
     {
-        //catalogs = await _categoryService.GetAllAsync();
+        categories = await _categoryService.GetAllAsync(_stateContainer.Catalog.Id);
     }
 }

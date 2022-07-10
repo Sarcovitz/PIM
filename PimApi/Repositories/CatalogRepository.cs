@@ -45,20 +45,12 @@ public class CatalogRepository : ICatalogRepository
 
     public async Task<int> UpdateAsync(Catalog model)
     {
-        //_context.Catalogs.Update(model);
         var _catalog = await GetByIdAsync(model.Id);
         if (_catalog is null) return 0;
         _catalog.Name = model.Name;
         _catalog.DefaultCurrencyCode = model.DefaultCurrencyCode;
         _catalog.CatalogUsers = model.CatalogUsers;
         _context.Catalogs.Update(_catalog);
-
-        //var catalogUsersToDelete = _catalog.CatalogUsers.Where(cuDb => !model.CatalogUsers.Any(cuModel => cuModel.UserId == cuDb.UserId)).ToList();
-
-        //foreach(var cu in catalogUsersToDelete)
-        //{
-        //    _catalog.CatalogUsers.Remove(cu);
-        //}
 
         return await _context.SaveChangesAsync();
     }

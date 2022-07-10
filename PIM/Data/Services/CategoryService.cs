@@ -8,6 +8,7 @@ public class CategoryService
 {
     private readonly ILocalStorageService _localStorage;
     private readonly IHttpClientFactory _httpClientFactory;
+    
 
     public CategoryService(ILocalStorageService localStorage, IHttpClientFactory httpClientFactory)
     {
@@ -15,11 +16,11 @@ public class CategoryService
         _httpClientFactory = httpClientFactory;
     }
 
-    public async Task<List<Category>> GetCategoriesAsync(int? catalogId = null)
+    public async Task<List<Category>> GetAllAsync(int? catalogId = null)
     {
-        List<Category> categories = new();
+        List<Category>? categories = new();
 
-        var request = new HttpRequestMessage(HttpMethod.Get, "/api/Catalog/GetAll");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/api/Category/GetAll?catalogId={catalogId}");
         request.Headers.Authorization =
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _localStorage.GetItemAsync<string>("token"));
 
@@ -29,6 +30,6 @@ public class CategoryService
         catch (Exception) { return categories; }
 
         categories = JsonConvert.DeserializeObject<List<Category>>(content);
-        return categories;
+        return categories ?? new List<Category>();
     }
 }

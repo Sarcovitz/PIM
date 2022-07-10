@@ -1,12 +1,13 @@
-using PimApi.Middlewares;
-using PimApi.Services;
-using PimApi.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using PimApi.Config;
 using PimApi.Data;
+using PimApi.Middlewares;
 using PimApi.Repositories;
 using PimApi.Repositories.Interfaces;
+using PimApi.Services;
+using PimApi.Services.Interfaces;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,7 +22,6 @@ builder.Services.Configure<SqlConfig>(builder.Configuration.GetSection("Connecti
 var apiConfig = builder.Configuration.GetSection("ApiConfig");
 builder.Services.Configure<ApiConfig>(apiConfig);
 
-
 //dbContexts
 builder.Services.AddDbContext<PimDbContext>();
 
@@ -30,6 +30,9 @@ builder.Services.AddTransient<ExceptionHandlingMiddleware>();
 
 //Services and Repos
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+
+builder.Services.AddScoped<IAttributeService, AttributeService>();
+builder.Services.AddScoped<IAttributeRepository, AttributeRepository>();
 
 builder.Services.AddScoped<ICatalogService, CatalogService>();
 builder.Services.AddScoped<ICatalogRepository, CatalogRepository>();
@@ -63,6 +66,34 @@ builder.Services.AddAuthentication(x=>
         ValidateIssuer = false,
         ValidateAudience = false
     };
+});
+
+builder.Services.AddSwaggerGen(option =>
+{
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
+    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter a valid token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "Bearer"
+    });
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type=ReferenceType.SecurityScheme,
+                    Id="Bearer"
+                }
+            },
+            new string[]{}
+        }
+    });
 });
 
 var app = builder.Build();
