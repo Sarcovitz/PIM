@@ -1,7 +1,95 @@
 ﻿@page "/Category/Create"
 
-<h3>CreateCategoryPage</h3>
+@using PIM.Data
+@using PIM.Data.Services
+@using PimModels.Models
+@using PimModels.RequestModels
 
-@code {
+@inject CategoryService _categoryService
+@inject AttributeService _attributeService
+@inject StateContainer _stateContainer
 
+<h3>CREATE CATEGORY</h3>
+
+@if(!string.IsNullOrWhiteSpace(_categoryService.Message))
+{
+    <text>@_categoryService.Message</text>
+}
+
+@if(attributeProtos is null || categories is null)
+{
+    <text>LOADING...</text>
+}
+
+<EditForm Model="@createCategory" OnValidSubmit="@Create" style="display: flex">
+    <div style="display: flex; flex-direction: column">
+        <label for="name">Category name:</label>
+        <InputText id="name" @bind-Value="createCategory.Name" />
+        <label for="ParentCategoryId">Parent category:</label>
+        <InputSelect id="ParentCategoryId" @bind-Value="createCategory.ParentCategoryId" >
+            <option value="null"></option>
+            @foreach(var category in categories.OrderBy(c => c.Name))
+            {
+                <option value="@category.Id">@category.Name</option>
+            }
+        </InputSelect>
+        <select @bind="@selectAttributeProto">
+            <option value=0></option>
+            @foreach(var proto in attributeProtos.OrderBy(a => a.Name))
+            {
+                <option value="@proto.Id">@proto.Name</option>
+            }
+        </select>
+        <button @onclick="() => AddProtoToCategory(selectAttributeProto)"> ADD PROTO</button>
+        @foreach(var proto in categoryProtos.OrderBy(a => a.Name))
+        {
+            <p> --- @proto.Name</p>
+            <a @onclick="() => DeleteProtoFromCategory(proto.Id)"> DELETE</a>
+        }
+        <br />
+        <button type="submit">Register</button>
+    </div>
+    <div>
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+    </div>
+</EditForm>
+
+@code 
+{
+    private CreateCategory createCategory = new();
+    private List<ProductAttributeProto> attributeProtos = new();
+    private List<Category> categories = new();
+
+    private int selectAttributeProto;
+    private List<ProductAttributeProto> categoryProtos = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _categoryService.Message = "";
+        attributeProtos = await _attributeService.GetAllCatalogProtosAsync(_stateContainer.Catalog.Id);
+        categories = await _categoryService.GetAllAsync(_stateContainer.Catalog.Id);
+    }
+
+    private async Task Create()
+    {
+        var resp = await _categoryService.CreateAsync(createCategory);
+        if (resp > 0) createCategory = new();
+    }
+
+    private void AddProtoToCategory(int protoId)
+    {
+        var item = attributeProtos.First(p => p.Id == protoId);
+        categoryProtos.Add(item);
+        attributeProtos.Remove(item);
+        selectAttributeProto = 0;
+    }
+
+    private void DeleteProtoFromCategory(int protoId)
+    {
+        var item = categoryProtos.First(p => p.Id == protoId);
+        attributeProtos.Add(item);
+        categoryProtos.Remove(item);
+        selectAttributeProto = 0;
+    }
 }

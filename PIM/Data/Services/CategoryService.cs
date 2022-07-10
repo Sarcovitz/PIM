@@ -1,14 +1,16 @@
 ﻿using Blazored.LocalStorage;
 using Newtonsoft.Json;
 using PimModels.Models;
+using PimModels.RequestModels;
 
 namespace PIM.Data.Services;
 
 public class CategoryService
 {
+    public string Message = "";
+
     private readonly ILocalStorageService _localStorage;
     private readonly IHttpClientFactory _httpClientFactory;
-    
 
     public CategoryService(ILocalStorageService localStorage, IHttpClientFactory httpClientFactory)
     {
@@ -31,5 +33,10 @@ public class CategoryService
 
         categories = JsonConvert.DeserializeObject<List<Category>>(content);
         return categories ?? new List<Category>();
+    }
+
+    public async Task<int> CreateAsync(CreateCategory createCategory)
+    {
+        return 1;
     }
 }
