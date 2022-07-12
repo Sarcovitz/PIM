@@ -6,5 +6,6 @@ namespace PimApi.Repositories.Interfaces
     {
         Task<List<Category>> GetAll();
         Task<List<Category>> GetAllInCatalog(int catalogId);
+        Task<int> CreateAsync(Category category);
     }
 }

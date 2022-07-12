@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using PimModels.Models;
 using PimModels.RequestModels;
+using System.Text;
 
 namespace PIM.Data.Services;
 
@@ -22,7 +23,7 @@ public class CategoryService
     {
         List<Category>? categories = new();
 
-        var request = new HttpRequestMessage(HttpMethod.Get, $"/api/Category/GetAll?catalogId={catalogId}");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/api/Category/All?catalogId={catalogId}");
         request.Headers.Authorization =
             new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _localStorage.GetItemAsync<string>("token"));
 
@@ -37,6 +38,26 @@ public class CategoryService
 
     public async Task<int> CreateAsync(CreateCategory createCategory)
     {
-        return 1;
+        if (createCategory is null)
+        {
+            Message = "Error. Category data is empty.";
+            return -1;
+        }
+
+        var request = new HttpRequestMessage(HttpMethod.Post, "/api/Category");
+        request.Content = new StringContent(JsonConvert.SerializeObject(createCategory), Encoding.UTF8, "application/json");
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _localStorage.GetItemAsync<string>("token"));
+
+        var response = await _httpClientFactory.CreateClient("WebApi").SendAsync(request);
+        string content = await response.Content.ReadAsStringAsync();
+        try { response.EnsureSuccessStatusCode(); }
+        catch (Exception)
+        {
+            Message = content;
+            return -1;
+        }
+
+        Message = "Category created successfully, now You can see it on category list";
+        return JsonConvert.DeserializeObject<int>(content);
     }
 }

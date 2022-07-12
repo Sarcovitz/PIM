@@ -50,6 +50,8 @@ public class PimDbContext: DbContext
         category.HasOne(x => x.ParentCategory).WithMany(x => x.SubCategories).HasForeignKey(x => x.ParentCategoryId).OnDelete(DeleteBehavior.Cascade);
         category.HasOne(x => x.Catalog).WithMany(x => x.Categories).HasForeignKey(x => x.CatalogId).OnDelete(DeleteBehavior.Cascade);
 
+        var categoryProductAttributeProto= modelBuilder.Entity<>
+
         var currency = modelBuilder.Entity<Currency>();
         currency.ToTable("Currencies");
         currency.HasIndex(x => x.Code).IsUnique();
@@ -67,7 +69,6 @@ public class PimDbContext: DbContext
         var productAttributeProto = modelBuilder.Entity<ProductAttributeProto>();
         productAttributeProto.ToTable("ProductAttributeProtos");
         productAttributeProto.HasOne(x => x.Catalog).WithMany(x => x.ProductAttributeProtos).HasForeignKey(x => x.CatalogId).OnDelete(DeleteBehavior.Cascade);
-        productAttributeProto.HasMany(x => x.Categories).WithMany(x => x.AttributeProtos);
 
         var user = modelBuilder.Entity<User>();
         user.ToTable("Users");

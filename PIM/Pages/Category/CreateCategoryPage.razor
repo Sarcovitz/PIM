@@ -26,7 +26,7 @@
         <label for="name">Category name:</label>
         <InputText id="name" @bind-Value="createCategory.Name" />
         <label for="ParentCategoryId">Parent category:</label>
-        <InputSelect id="ParentCategoryId" @bind-Value="createCategory.ParentCategoryId" >
+        <InputSelect id="ParentCategoryId" @bind-Value="selectParentCategoryProp">
             <option value="null"></option>
             @foreach(var category in categories.OrderBy(c => c.Name))
             {
@@ -40,7 +40,7 @@
                 <option value="@proto.Id">@proto.Name</option>
             }
         </select>
-        <button @onclick="() => AddProtoToCategory(selectAttributeProto)"> ADD PROTO</button>
+        <button type="button" @onclick="() => AddProtoToCategory(selectAttributeProto)"> ADD PROTO</button>
         @foreach(var proto in categoryProtos.OrderBy(a => a.Name))
         {
             <p> --- @proto.Name</p>
@@ -60,6 +60,18 @@
     private CreateCategory createCategory = new();
     private List<ProductAttributeProto> attributeProtos = new();
     private List<Category> categories = new();
+    private int? selectParentCategoryProp
+    {
+        get
+        {
+            return createCategory.ParentCategoryId;
+        }
+        set
+        {
+            createCategory.ParentCategoryId = value;
+            SelectParentCategory(value);
+        }
+    }
 
     private int selectAttributeProto;
     private List<ProductAttributeProto> categoryProtos = new();
@@ -73,6 +85,8 @@
 
     private async Task Create()
     {
+        createCategory.CatalogId = _stateContainer.Catalog.Id;
+        createCategory.AttributeProtos = categoryProtos;
         var resp = await _categoryService.CreateAsync(createCategory);
         if (resp > 0) createCategory = new();
     }
@@ -91,5 +105,12 @@
         attributeProtos.Add(item);
         categoryProtos.Remove(item);
         selectAttributeProto = 0;
+    }
+
+    private async void SelectParentCategory(int? parentId)
+    {
+        var parentProtos = await _attributeService.GetAllCategoryProtosAsync(parentId.Value);
+        categoryProtos.ForEach(x => DeleteProtoFromCategory(x.Id));
+        parentProtos.ForEach(x => AddProtoToCategory(x.Id));
     }
 }
