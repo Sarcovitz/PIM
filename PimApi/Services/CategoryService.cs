@@ -32,4 +32,6 @@ public class CategoryService : ICategoryService
         if (catalogId.HasValue) return await _categoryRepository.GetAllInCatalog(catalogId.Value);
         else return await _categoryRepository.GetAll();
     }
+
+    public Task<Category?> GetById(int id) => _categoryRepository.GetById(id);
 }

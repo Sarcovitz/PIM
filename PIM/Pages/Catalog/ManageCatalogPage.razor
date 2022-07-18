@@ -17,8 +17,7 @@
     <text>@_catalogService.Message</text>
 }
 
-@if(catalog is null) { <text> WAIT WAIT WAIT</text>
-}
+@if(catalog is null) { <text> WAIT WAIT WAIT</text> }
 else
 {
     @if (catalog == new Catalog()) { _navManager.NavigateTo("/Catalog/List"); }

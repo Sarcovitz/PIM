@@ -45,7 +45,7 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<List<Category>> GetAll() => await _context.Categories.ToListAsync();
 
-    public async Task<List<Category>> GetAllInCatalog(int catalogId) => await _context.Categories.Where(c => c.CatalogId == catalogId).ToListAsync();
+    public async Task<List<Category>> GetAllInCatalog(int catalogId) => await _context.Categories.Where(c => c.CatalogId == catalogId).Include(x => x.SubCategories).ToListAsync();
 
-    public async Task<Category?> GetById(int categoryId) => await _context.Categories.Include(c => c.AttributeProtos).ThenInclude(c => c.ProductAttributeProto).FirstOrDefaultAsync(c => c.Id == categoryId);
+    public async Task<Category?> GetById(int categoryId) => await _context.Categories.Include(c => c.AttributeProtos).ThenInclude(c => c.ProductAttributeProto).Load().FirstOrDefaultAsync(c => c.Id == categoryId);
 }

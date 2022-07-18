@@ -36,6 +36,23 @@ public class CategoryService
         return categories ?? new List<Category>();
     }
 
+    public async Task<Category?> GetAsync(int id)
+    {
+        Category? category = new();
+
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/api/Category/{id}");
+        request.Headers.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _localStorage.GetItemAsync<string>("token"));
+
+        var response = await _httpClientFactory.CreateClient("WebApi").SendAsync(request);
+        string content = await response.Content.ReadAsStringAsync();
+        try { response.EnsureSuccessStatusCode(); }
+        catch (Exception) { return null; }
+
+        category = JsonConvert.DeserializeObject<Category>(content);
+        return category;
+    }
+
     public async Task<int> CreateAsync(CreateCategory createCategory)
     {
         if (createCategory is null)
@@ -59,5 +76,10 @@ public class CategoryService
 
         Message = "Category created successfully, now You can see it on category list";
         return JsonConvert.DeserializeObject<int>(content);
+    }
+
+    public async Task<bool> UpdateAsync(UpdateCategory update)
+    {
+        return true;
     }
 }

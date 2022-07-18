@@ -39,4 +39,14 @@ public class CategoryController : ControllerBase
         categories = await _categoryService.GetAllCategories(catalogId);
         return Ok(categories);
     }
+
+    [HttpGet]
+    [Authorize]
+    [Route("{categoryId:int}")]
+    public async Task<IActionResult> Get([FromRoute] int categoryId)
+    {
+        Category? category = await _categoryService.GetById(categoryId);
+        if (category is null) return NotFound();
+        return Ok(category);
+    }
 }
