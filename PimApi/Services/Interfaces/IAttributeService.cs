@@ -10,4 +10,5 @@ public interface IAttributeService
     Task<ProductAttributeProtoDTO?> GetProto(int id);
     Task<int> CreateProto(CreateProductAttributeProto createProto);
     Task<int> UpdateProto(UpdateProductAttributeProto updateProto, int attributeId);
+    Task<List<CategoryProductAttributeProto>> GetCategoryInherited(int categoryId);
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PimApi.Data;
@@ -11,9 +12,10 @@ using PimApi.Data;
 namespace PIM.Api.Data.Migrations
 {
     [DbContext(typeof(PimDbContext))]
-    partial class PimDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220716091552_CaegoryProductProtoAttribute")]
+    partial class CaegoryProductProtoAttribute
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -100,8 +102,6 @@ namespace PIM.Api.Data.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("CategoryId", "ProductAttributeProtoId");
-
-                    b.HasIndex("ProductAttributeProtoId");
 
                     b.ToTable("CategoryProductAttributeProtos", "PIM");
                 });
@@ -300,7 +300,7 @@ namespace PIM.Api.Data.Migrations
 
                     b.HasOne("PimModels.Models.ProductAttributeProto", "ProductAttributeProto")
                         .WithMany("Categories")
-                        .HasForeignKey("ProductAttributeProtoId")
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

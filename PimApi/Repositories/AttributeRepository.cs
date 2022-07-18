@@ -16,7 +16,8 @@ public class AttributeRepository : IAttributeRepository
     public Task<List<ProductAttributeProto>> GetAllProtosByCatalog(int catalogId) => _context.ProductAttributeProtos.Where(p => p.CatalogId == catalogId).ToListAsync();
 
     public Task<List<ProductAttributeProto>> GetAllProtosByCategory(int categoryId)
-        => _context.ProductAttributeProtos.Include(p => p.Categories).Where(p => p.Categories.Any(c => c.Id == categoryId)).ToListAsync();
+      //  => _context.ProductAttributeProtos.Include(p => p.Categories).Where(p => p.Categories.Any(c => c.CategoryId == categoryId)).ToListAsync();
+    =>_context.categoryProductAttributeProtos.Where(x=>x.CategoryId == categoryId).Select(x => x.ProductAttributeProto).ToListAsync();
 
     public Task<List<ProductAttributeProto>> GetAllProtos() => _context.ProductAttributeProtos.ToListAsync();
 

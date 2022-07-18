@@ -27,12 +27,18 @@
         <InputText id="name" @bind-Value="createCategory.Name" />
         <label for="ParentCategoryId">Parent category:</label>
         <InputSelect id="ParentCategoryId" @bind-Value="selectParentCategoryProp">
-            <option value="null"></option>
+            <option value="0"></option>
             @foreach(var category in categories.OrderBy(c => c.Name))
             {
                 <option value="@category.Id">@category.Name</option>
             }
         </InputSelect>
+        <p> PARENT CATEGORY INHERITED ATTRIBUTE PROTOTYPES</p>
+        @foreach(var proto in parentProtos)
+        {
+            <p> ---> @proto.ProductAttributeProto.Name</p>
+        }
+
         <select @bind="@selectAttributeProto">
             <option value=0></option>
             @foreach(var proto in attributeProtos.OrderBy(a => a.Name))
@@ -59,13 +65,11 @@
 {
     private CreateCategory createCategory = new();
     private List<ProductAttributeProto> attributeProtos = new();
+    private List<CategoryProductAttributeProto> parentProtos = new();
     private List<Category> categories = new();
     private int? selectParentCategoryProp
     {
-        get
-        {
-            return createCategory.ParentCategoryId;
-        }
+        get => createCategory.ParentCategoryId;
         set
         {
             createCategory.ParentCategoryId = value;
@@ -88,11 +92,21 @@
         createCategory.CatalogId = _stateContainer.Catalog.Id;
         createCategory.AttributeProtos = categoryProtos;
         var resp = await _categoryService.CreateAsync(createCategory);
-        if (resp > 0) createCategory = new();
+        if (resp > 0) 
+        {
+            createCategory = new();
+            categoryProtos.Clear();
+            parentProtos.Clear();
+            attributeProtos = await _attributeService.GetAllCatalogProtosAsync(_stateContainer.Catalog.Id);
+            categories = await _categoryService.GetAllAsync(_stateContainer.Catalog.Id);
+            selectAttributeProto = 0;
+            StateHasChanged();
+        }
     }
 
     private void AddProtoToCategory(int protoId)
     {
+        if (protoId == 0) return;
         var item = attributeProtos.First(p => p.Id == protoId);
         categoryProtos.Add(item);
         attributeProtos.Remove(item);
@@ -109,8 +123,24 @@
 
     private async void SelectParentCategory(int? parentId)
     {
-        var parentProtos = await _attributeService.GetAllCategoryProtosAsync(parentId.Value);
-        categoryProtos.ForEach(x => DeleteProtoFromCategory(x.Id));
-        parentProtos.ForEach(x => AddProtoToCategory(x.Id));
+        parentProtos = new();
+
+        if(parentId == 0)
+        {
+            parentProtos.Clear();
+            categoryProtos.Clear();
+            attributeProtos = await _attributeService.GetAllCatalogProtosAsync(_stateContainer.Catalog.Id);
+            selectAttributeProto = 0;
+            StateHasChanged();
+            return;
+        }
+
+        parentProtos = await _attributeService.GetCategoryInheritedProtos(parentId.Value);
+        categoryProtos.Clear();
+        attributeProtos = await _attributeService.GetAllCatalogProtosAsync(_stateContainer.Catalog.Id);
+        var atrProtosToDelete = parentProtos.Select(x => x.ProductAttributeProto).DistinctBy(a =>a.Id).ToList();
+        atrProtosToDelete.ForEach(x => attributeProtos.Remove(attributeProtos.First(a =>a.Id == x.Id)));
+        selectAttributeProto = 0;
+        StateHasChanged();
     }
 }

@@ -19,11 +19,10 @@ public class CategoryService : ICategoryService
 
         Category category = new();
         category.Name = createCategory.Name;
-        category.AttributeProtos = createCategory.AttributeProtos;
         category.CatalogId = createCategory.CatalogId;
         category.ParentCategoryId = createCategory.ParentCategoryId;
 
-        int categoryId = await _categoryRepository.CreateAsync(category);
+        int categoryId = await _categoryRepository.CreateAsync(category, createCategory.AttributeProtos);
 
         return categoryId;
     }

@@ -12,6 +12,7 @@ public class PimDbContext: DbContext
     public DbSet<Catalog> Catalogs { get; set; }
     public DbSet<CatalogUser> CatalogUsers { get; set; }
     public DbSet<Category> Categories { get; set; }
+    public DbSet<CategoryProductAttributeProto> categoryProductAttributeProtos { get; set; }
     public DbSet<Currency> Currencies { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<ProductAttribute> ProductAttributes { get; set; }
@@ -50,7 +51,11 @@ public class PimDbContext: DbContext
         category.HasOne(x => x.ParentCategory).WithMany(x => x.SubCategories).HasForeignKey(x => x.ParentCategoryId).OnDelete(DeleteBehavior.Cascade);
         category.HasOne(x => x.Catalog).WithMany(x => x.Categories).HasForeignKey(x => x.CatalogId).OnDelete(DeleteBehavior.Cascade);
 
-        var categoryProductAttributeProto= modelBuilder.Entity<>
+        var categoryProductAttributeProto = modelBuilder.Entity<CategoryProductAttributeProto>();
+        categoryProductAttributeProto.ToTable("CategoryProductAttributeProtos");
+        categoryProductAttributeProto.HasKey(x => new { x.CategoryId, x.ProductAttributeProtoId });
+        categoryProductAttributeProto.HasOne(x => x.Category).WithMany(c => c.AttributeProtos).HasForeignKey(x=>x.CategoryId).OnDelete(DeleteBehavior.Cascade);
+        categoryProductAttributeProto.HasOne(x => x.ProductAttributeProto).WithMany(x => x.Categories).HasForeignKey(x => x.ProductAttributeProtoId).OnDelete(DeleteBehavior.Cascade);
 
         var currency = modelBuilder.Entity<Currency>();
         currency.ToTable("Currencies");

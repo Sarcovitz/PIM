@@ -34,6 +34,22 @@ namespace PIM.Data.Services
             return attributeProtos;
         }
 
+        public async Task<List<CategoryProductAttributeProto>> GetCategoryInheritedProtos(int categoryId)
+        {
+            List<CategoryProductAttributeProto> attributeProtos = new();
+
+            var request = new HttpRequestMessage(HttpMethod.Get, $"/api/Attribute/Proto/CategoryInherited?categoryId={categoryId}");
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _localStorage.GetItemAsync<string>("token"));
+
+            var response = await _httpClientFactory.CreateClient("WebApi").SendAsync(request);
+            string content = await response.Content.ReadAsStringAsync();
+            try { response.EnsureSuccessStatusCode(); }
+            catch (Exception) { return attributeProtos; }
+
+            attributeProtos = JsonConvert.DeserializeObject<List<CategoryProductAttributeProto>>(content);
+            return attributeProtos;
+        }
+
         public async Task<List<ProductAttributeProto>> GetAllCatalogProtosAsync(int catalogId)
         {
             List<ProductAttributeProto>? attributeProtos = new();

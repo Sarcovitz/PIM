@@ -10,5 +10,5 @@ public class ProductAttributeProtoDTO
     public string? DefaultValue { get; set; } = null;
     public string? PossibleValues { get; set; } = null;
 
-    virtual public List<Category>? Categories { get; set; }
+    virtual public List<CategoryProductAttributeProto>? Categories { get; set; }
 }

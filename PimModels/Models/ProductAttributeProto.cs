@@ -16,7 +16,7 @@ public class ProductAttributeProto
     public int CatalogId { get; set; }
     virtual public Catalog? Catalog { get; set; }
     virtual public List<ProductAttribute>? ProductAttributes { get; set; }
-    virtual public List<Category>? Categories { get; set; }
+    virtual public List<CategoryProductAttributeProto>? Categories { get; set; }
 
 }
 

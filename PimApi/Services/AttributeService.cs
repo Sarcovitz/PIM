@@ -9,9 +9,11 @@ namespace PimApi.Services;
 public class AttributeService : IAttributeService
 {
     private readonly IAttributeRepository _attributeRepository;
-    public AttributeService(IAttributeRepository attributeRepository)
+    private readonly ICategoryRepository _categoryRepository;
+    public AttributeService(IAttributeRepository attributeRepository, ICategoryRepository categoryRepository)
     {
         _attributeRepository = attributeRepository;
+        _categoryRepository = categoryRepository;
     }
 
     public async Task<int> CreateProto(CreateProductAttributeProto createProto)
@@ -40,6 +42,23 @@ public class AttributeService : IAttributeService
         else if (catalogId.HasValue) return await _attributeRepository.GetAllProtosByCatalog(catalogId.Value);
         else return await _attributeRepository.GetAllProtos();
     }
+
+    public async Task<List<CategoryProductAttributeProto>> GetCategoryInherited(int categoryId)
+    {
+        List<CategoryProductAttributeProto> list = new();
+        var category = await _categoryRepository.GetById(categoryId);
+        if (category is null) return list;
+        if (category.AttributeProtos is not null) list.AddRange(category.AttributeProtos);
+        
+        while(category.ParentCategoryId.HasValue)
+        {
+            category = await _categoryRepository.GetById(category.ParentCategoryId.Value);
+            if (category.AttributeProtos is not null) list.AddRange(category.AttributeProtos);
+        }
+
+        return list;
+    }
+
     public async Task<int> UpdateProto(UpdateProductAttributeProto updateProto, int attributeId)
     {
         ProductAttributeProto proto = new ProductAttributeProto();

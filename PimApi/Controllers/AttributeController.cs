@@ -30,6 +30,17 @@ public class AttributeController : ControllerBase
 
     [Authorize]
     [HttpGet]
+    [Route("Proto/CategoryInherited")]
+    public async Task<IActionResult> GetCategoryInherited([FromQuery] int categoryId)
+    {
+        List<CategoryProductAttributeProto> attributeProtos = new();
+        attributeProtos = await _attributeService.GetCategoryInherited(categoryId);
+
+        return Ok(attributeProtos);
+    }
+
+    [Authorize]
+    [HttpGet]
     [Route("Proto")]
     public async Task<IActionResult> GetProto([FromQuery] int? id)
     {

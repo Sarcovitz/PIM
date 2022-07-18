@@ -25,5 +25,5 @@ public  class Category
 
     virtual public List<Product>? Products { get; set; }
 
-    virtual public List<ProductAttributeProto>? AttributeProtos { get; set; }
+    virtual public List<CategoryProductAttributeProto>? AttributeProtos { get; set; }
 }
