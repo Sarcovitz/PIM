@@ -7,7 +7,7 @@ namespace PimApi.Repositories;
 
 public class CategoryRepository : ICategoryRepository
 {
-    private readonly PimDbContext _context; 
+    private readonly PimDbContext _context;
     public CategoryRepository(PimDbContext context)
     {
         _context = context;
@@ -24,7 +24,7 @@ public class CategoryRepository : ICategoryRepository
                 await _context.Categories.AddAsync(category);
                 await _context.SaveChangesAsync();
 
-                foreach(var attribute in attributeProtos)
+                foreach (var attribute in attributeProtos)
                 {
                     await _context.categoryProductAttributeProtos.AddAsync(new CategoryProductAttributeProto { ProductAttributeProtoId = attribute.Id, CategoryId = category.Id });
                 }
@@ -32,12 +32,12 @@ public class CategoryRepository : ICategoryRepository
 
                 await tran.CommitAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 tran.Rollback();
-                throw new Exception(ex.Message +" "+ ex.InnerException);
+                throw new Exception(ex.Message + " " + ex.InnerException);
             }
-            
+
             await _context.SaveChangesAsync();
             return category.Id;
         }
@@ -47,5 +47,9 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<List<Category>> GetAllInCatalog(int catalogId) => await _context.Categories.Where(c => c.CatalogId == catalogId).Include(x => x.SubCategories).ToListAsync();
 
-    public async Task<Category?> GetById(int categoryId) => await _context.Categories.Include(c => c.AttributeProtos).ThenInclude(c => c.ProductAttributeProto).Load().FirstOrDefaultAsync(c => c.Id == categoryId);
+    public async Task<Category?> GetById(int categoryId)
+    {
+        var fullResult = await _context.Categories.Include(c => c.AttributeProtos).ThenInclude(c => c.ProductAttributeProto).Include(x => x.SubCategories).ToListAsync();
+        return fullResult.FirstOrDefault(x => x.Id == categoryId);
+    }
 }

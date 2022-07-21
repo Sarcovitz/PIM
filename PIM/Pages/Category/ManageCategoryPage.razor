@@ -116,7 +116,7 @@ else
         {
             foreach (var sub in subcategory.SubCategories) DropSubCategories(sub);
         }
-        categories.Remove(subcategory);
+        categories.Remove(categories.FirstOrDefault(x => x.Id == subcategory.Id));
     }
 
     private async Task Create()
