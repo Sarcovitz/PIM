@@ -8,4 +8,5 @@ public interface ICategoryService
     Task<List<Category>> GetAllCategories(int? catalogId);
     Task<int> CreateAsync(CreateCategory createCategory);
     Task<Category?> GetById(int id);
+    Task<int> UpdateAsync(int categoryId, UpdateCategory updateCategory);
 }

@@ -17,6 +17,7 @@ public class PimDbContext: DbContext
     public DbSet<Product> Products { get; set; }
     public DbSet<ProductAttribute> ProductAttributes { get; set; }
     public DbSet<ProductAttributeProto> ProductAttributeProtos { get; set; }
+    public DbSet<ProductImage> ProductImages { get; set; }
     public DbSet<User> Users { get; set; }
 
 
@@ -75,6 +76,10 @@ public class PimDbContext: DbContext
         var productAttributeProto = modelBuilder.Entity<ProductAttributeProto>();
         productAttributeProto.ToTable("ProductAttributeProtos");
         productAttributeProto.HasOne(x => x.Catalog).WithMany(x => x.ProductAttributeProtos).HasForeignKey(x => x.CatalogId).OnDelete(DeleteBehavior.Cascade);
+
+        var productImage = modelBuilder.Entity<ProductImage>();
+        productImage.ToTable("ProductImages");
+        productImage.HasOne(x => x.Product).WithMany(x => x.ProductImages).HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Cascade);
 
         var user = modelBuilder.Entity<User>();
         user.ToTable("Users");

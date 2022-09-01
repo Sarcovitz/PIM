@@ -49,4 +49,17 @@ public class CategoryController : ControllerBase
         if (category is null) return NotFound();
         return Ok(category);
     }
+
+    [HttpPut]
+    [Authorize]
+    [Route("{categoryId:int}")]
+    public async Task<IActionResult> Get([FromRoute] int categoryId, [FromBody]UpdateCategory updateCategory)
+    {
+        if (!ModelState.IsValid) return BadRequest();
+
+        int resp = await _categoryService.UpdateAsync(categoryId, updateCategory);
+
+        if (resp <= 0) return BadRequest();
+        return Ok();
+    }
 }

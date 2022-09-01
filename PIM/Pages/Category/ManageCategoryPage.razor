@@ -28,7 +28,7 @@ else
     @if (category == new Category()) { _navManager.NavigateTo("/Catalog/List"); }
     else
     {
-        <EditForm Model="@updateCategory" OnValidSubmit="@Create" style="display: flex">
+        <EditForm Model="@updateCategory" OnValidSubmit="@Update" style="display: flex">
         <div style="display: flex; flex-direction: column">
             <label for="name">Category name:</label>
             <InputText id="name" @bind-Value="updateCategory.Name" />
@@ -60,7 +60,7 @@ else
                 <a @onclick="() => DeleteProtoFromCategory(proto.Id)"> DELETE</a>
             }
             <br />
-            <button type="submit">Register</button>
+            <button type="submit">Update</button>
         </div>
         <div>
             <DataAnnotationsValidator />
@@ -85,7 +85,7 @@ else
         get => updateCategory.ParentCategoryId;
         set
         {
-            updateCategory.ParentCategoryId = value;
+            updateCategory.ParentCategoryId = value == 0 ? null : value;
             SelectParentCategory(value);
         }
     }
@@ -119,21 +119,31 @@ else
         categories.Remove(categories.FirstOrDefault(x => x.Id == subcategory.Id));
     }
 
-    private async Task Create()
+    private async Task Update()
     {
         updateCategory.CatalogId = _stateContainer.Catalog.Id;
-        //updateCategory.AttributeProtos = categoryProtos;
-        var resp = await _categoryService.UpdateAsync(updateCategory);
-        //if (resp > 0) 
-        //{
-        //    updateCategory = new();
-        //    categoryProtos.Clear();
-        //    parentProtos.Clear();
-        //    attributeProtos = await _attributeService.GetAllCatalogProtosAsync(_stateContainer.Catalog.Id);
-        //    categories = await _categoryService.GetAllAsync(_stateContainer.Catalog.Id);
-        //    selectAttributeProto = 0;
-        //    StateHasChanged();
-        //}
+        updateCategory.AttributeProtos.Clear();
+        categoryProtos.ForEach(x => updateCategory.AttributeProtos.Add(new CategoryProductAttributeProto { CategoryId = categoryId, ProductAttributeProtoId = x.Id }));
+        updateCategory.AttributeProtos.DistinctBy(x => x.ProductAttributeProtoId);
+        var model = Helpers.ReferenceHelper.DeepClone(updateCategory);
+        foreach(var attr in model.AttributeProtos)
+        {
+            attr.Category = null;
+            attr.ProductAttributeProto = null;
+        }
+        var resp = await _categoryService.UpdateAsync(categoryId ,model);
+        if (resp) 
+        {
+            //updateCategory = new();
+            categoryProtos.Clear();
+            parentProtos.Clear();
+            attributeProtos = await _attributeService.GetAllCatalogProtosAsync(_stateContainer.Catalog.Id);
+            categories = await _categoryService.GetAllAsync(_stateContainer.Catalog.Id);
+            categories.Remove(categories.First(x => x.Id == category.Id));
+            category.SubCategories.ForEach(x => DropSubCategories(x));
+            selectAttributeProto = 0;
+            await OnInitializedAsync();
+        }
     }
 
     private void AddProtoToCategory(int protoId)
@@ -168,6 +178,7 @@ else
         }
 
         parentProtos = await _attributeService.GetCategoryInheritedProtos(parentId.Value);
+        parentProtos = parentProtos.DistinctBy(x => x.ProductAttributeProtoId).ToList();
         categoryProtos.Clear();
         attributeProtos = await _attributeService.GetAllCatalogProtosAsync(_stateContainer.Catalog.Id);
         var atrProtosToDelete = parentProtos.Select(x => x.ProductAttributeProto).DistinctBy(a =>a.Id).ToList();

@@ -1,10 +1,12 @@
 ﻿@page "/Products/List"
 
 @using PIM.Data
+@using PIM.Data.Services
 @using PimModels.Models
 
 @inject NavigationManager _navManager
 @inject StateContainer _stateContainer
+@inject ProductService _productService
 
 <h3>ProductsPage</h3>
 
@@ -13,7 +15,7 @@
 @if(products == null) { <text> WAIT </text> }
 else
 {
-    @if (products.Count == 0) { _navManager.NavigateTo("/Catalog/Create"); }
+    @if (products.Count == 0) { _navManager.NavigateTo("/Product/Create"); }
     else
     {
         @foreach (var product in products)
@@ -34,6 +36,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        //products = await _catalogService.GetAllAsync();
+        products = new();
+        products = await _productService.GetAll(_stateContainer.Catalog.Id);
     }
 }

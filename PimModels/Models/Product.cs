@@ -18,4 +18,5 @@ public class Product
     virtual public Category? Category { get; set; }
 
     virtual public List<ProductAttribute> ProductAttributes { get; set; }
+    virtual public List<ProductImage> ProductImages { get; set; }
 }

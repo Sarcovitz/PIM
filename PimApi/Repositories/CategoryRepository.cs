@@ -2,6 +2,7 @@
 using PimApi.Data;
 using PimApi.Repositories.Interfaces;
 using PimModels.Models;
+using PimModels.RequestModels;
 
 namespace PimApi.Repositories;
 
@@ -51,5 +52,18 @@ public class CategoryRepository : ICategoryRepository
     {
         var fullResult = await _context.Categories.Include(c => c.AttributeProtos).ThenInclude(c => c.ProductAttributeProto).Include(x => x.SubCategories).ToListAsync();
         return fullResult.FirstOrDefault(x => x.Id == categoryId);
+    }
+
+    public async Task<int> UpdateAsync(int categoryID, UpdateCategory updateCategory)
+    {
+        var _category = await GetById(categoryID);
+        if (_category is null) return 0;
+        _category.Name = updateCategory.Name;
+        _category.AttributeProtos = updateCategory.AttributeProtos;
+        _category.ParentCategoryId = updateCategory.ParentCategoryId;
+        _category.CatalogId = updateCategory.CatalogId;
+        _context.Categories.Update(_category);
+
+        return await _context.SaveChangesAsync();
     }
 }

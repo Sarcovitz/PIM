@@ -34,4 +34,9 @@ public class CategoryService : ICategoryService
     }
 
     public Task<Category?> GetById(int id) => _categoryRepository.GetById(id);
+
+    public async Task<int> UpdateAsync(int categoryId, UpdateCategory updateCategory)
+    {
+        return await _categoryRepository.UpdateAsync(categoryId, updateCategory);
+    }
 }

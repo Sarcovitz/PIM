@@ -24,13 +24,12 @@ public class CategoryService
         List<Category>? categories = new();
 
         var request = new HttpRequestMessage(HttpMethod.Get, $"/api/Category/All?catalogId={catalogId}");
-        request.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _localStorage.GetItemAsync<string>("token"));
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _localStorage.GetItemAsync<string>("token"));
 
         var response = await _httpClientFactory.CreateClient("WebApi").SendAsync(request);
         string content = await response.Content.ReadAsStringAsync();
         try { response.EnsureSuccessStatusCode(); }
-        catch (Exception) { return categories; }
+        catch { return categories; }
 
         categories = JsonConvert.DeserializeObject<List<Category>>(content);
         return categories ?? new List<Category>();
@@ -41,8 +40,7 @@ public class CategoryService
         Category? category = new();
 
         var request = new HttpRequestMessage(HttpMethod.Get, $"/api/Category/{id}");
-        request.Headers.Authorization =
-            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _localStorage.GetItemAsync<string>("token"));
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _localStorage.GetItemAsync<string>("token"));
 
         var response = await _httpClientFactory.CreateClient("WebApi").SendAsync(request);
         string content = await response.Content.ReadAsStringAsync();
@@ -78,8 +76,28 @@ public class CategoryService
         return JsonConvert.DeserializeObject<int>(content);
     }
 
-    public async Task<bool> UpdateAsync(UpdateCategory update)
+    public async Task<bool> UpdateAsync(int categoryId, UpdateCategory update)
     {
+        if (update is null)
+        {
+            Message = "Error. Catalog data is empty.";
+            return false;
+        }
+
+        var request = new HttpRequestMessage(HttpMethod.Put, $"/api/Category/{categoryId}");
+        request.Content = new StringContent(JsonConvert.SerializeObject(update), Encoding.UTF8, "application/json");
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _localStorage.GetItemAsync<string>("token"));
+
+        var response = await _httpClientFactory.CreateClient("WebApi").SendAsync(request);
+        string content = await response.Content.ReadAsStringAsync();
+        try { response.EnsureSuccessStatusCode(); }
+        catch (Exception)
+        {
+            Message = content;
+            return false;
+        }
+
+        Message = "Catalog updated successfully.";
         return true;
     }
 }

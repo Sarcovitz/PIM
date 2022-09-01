@@ -15,7 +15,7 @@ builder.Services.AddBlazoredLocalStorage();
 
 //http
 builder.Services.AddHttpClient("WebApi", httpClient => httpClient.BaseAddress = new Uri(@"https://localhost:5001"));
-builder.Services.AddSingleton(service => service.GetRequiredService<IHttpClientFactory>().CreateClient("WebApi"));
+builder.Services.AddScoped(service => service.GetRequiredService<IHttpClientFactory>().CreateClient("WebApi"));
 builder.Services.AddHttpContextAccessor();
 
 //auth
