@@ -14,6 +14,18 @@ public class ProductRepository : IProductRepository
         _context = context;
     }
 
+    public async Task<int> CreateAsync(Product product)
+    {
+        try
+        {
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+        }
+        catch{ }
+
+        return product.Id;
+    }
+
     public async Task<List<Product>> GetAll(int? catalogId)
     {
         if (catalogId.HasValue) return await _context.Products.Where(p => p.CatalogId == catalogId).ToListAsync();
@@ -43,4 +55,6 @@ public class ProductRepository : IProductRepository
         if (catalogId.HasValue) return await _context.Products.FirstOrDefaultAsync(p => p.Sku == sku && p.CatalogId == catalogId);
         else return await _context.Products.FirstOrDefaultAsync(p => p.Sku == sku);
     }
+
+    public async Task<ProductImage?> GetMainPhoto(int productId) => _context.ProductImages.FirstOrDefault(x => x.ProductId == productId);
 }

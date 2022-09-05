@@ -17,8 +17,8 @@ public class ProductAttribute
     public string Value { get; set; }
 
     public int AttributeProtoId { get; set; }
-    public ProductAttributeProto AttributeProto { get; set; }
+    public ProductAttributeProto? AttributeProto { get; set; }
 
     public int ProductId { get; set; }
-    public Product Product { get; set; }
+    public Product? Product { get; set; }
 }

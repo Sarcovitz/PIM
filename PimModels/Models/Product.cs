@@ -11,10 +11,16 @@ public class Product
     public string? Name { get; set; }
     public string? Sku { get; set; }
     public string? Ean { get; set; }
+    public string? Description { get; set; }
+    public string? DescriptionHTML { get; set; }
+    public double? Height { get; set; }
+    public double Width { get; set; }
+    public double Length { get; set; }
+
     public int CatalogId { get; set; }
     virtual public Catalog? Catalog { get; set; }
 
-    public int CategoryId { get; set; }
+    public int? CategoryId { get; set; }
     virtual public Category? Category { get; set; }
 
     virtual public List<ProductAttribute> ProductAttributes { get; set; }

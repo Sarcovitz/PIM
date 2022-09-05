@@ -25,6 +25,7 @@ else
                     Product Name: @product.Name <br>
                 </div>
                 <div>
+                    @*<img src="@($"data:{product.ProductImages[0].ContentType};base64,{await _productService.GetMainImage()}")"/>*@
                 </div>
             </div>
         }
@@ -36,7 +37,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        products = new();
         products = await _productService.GetAll(_stateContainer.Catalog.Id);
     }
 }
