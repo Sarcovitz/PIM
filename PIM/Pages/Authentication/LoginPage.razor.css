@@ -1,0 +1,76 @@
+﻿.formHolder {
+    border: 4px solid white;
+    border-radius :40px;
+    padding: 30px 120px;
+    align-content: center;
+    box-shadow: 0 0 10px 0px white;
+    color: white;
+    font-family: Arial;
+    background: rgba(255,255,255,0.07);
+}
+
+h3{
+    text-transform:uppercase;
+    color: white;
+    font: 600 25px arial;
+    letter-spacing: 7px;
+    text-align: center;
+    font-size: 40px;
+}
+
+.formFields{
+    display:flex;
+    flex-direction: column;
+    padding: 5px 0px;
+}
+
+.inputHolder{
+    display:flex;
+    flex-direction:column;
+    font-size:20px;
+}
+
+    .inputHolder > input[type=text], input[type=password] {
+        box-sizing: border-box;
+        float: right;
+        border: none;
+        font-family: Verdana;
+        background: rgba(255,255,255,0.2);
+        font-weight: 600;
+        height: 2.2em;
+        transition: box-shadow ease 250ms;
+    }
+
+        .inputHolder > input[type=text]:focus, input[type=password]:focus {
+            outline: none;
+            box-shadow: 0 -2px 0 0 white inset;    
+        }
+
+    .inputHolder > label{
+        float: left;
+        letter-spacing: 2px;
+        font-weight: 600;
+    }
+
+    .inputHolder > input[type=submit]{
+        background:transparent;
+        border: 2px solid white;
+        border-radius: 1000px;
+        color: white;
+        letter-spacing: 2px;
+        font-weight:700;
+        font-size: 25px;
+        transition: all ease 250ms;
+    }
+
+        .inputHolder > input[type=submit]:hover {
+            box-shadow: 0 0 10px 0px white;
+        }
+
+    h1{
+        color:red;
+        position:absolute;
+        right: 50%;
+        top: 7%;
+        transform: translateX(50%);
+    }

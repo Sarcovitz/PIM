@@ -34,6 +34,24 @@ namespace PimApi.Controllers
 
         [Authorize]
         [HttpGet]
+        [Route("{productId:int}")]
+        public async Task<IActionResult> Get([FromRoute] int productId) => Ok(await _productService.GetProductAsync(productId));
+
+        [Authorize]
+        [HttpPut]
+        [Route("{productId:int}")]
+        public async Task<IActionResult> Update([FromBody] UpdateProduct updateProduct, [FromRoute] int productId)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            int resp = await _productService.UpdateAsync(productId, updateProduct);
+
+            if (resp <= 0) return BadRequest();
+            return Ok();
+        }
+
+        [Authorize]
+        [HttpGet]
         [Route("Photo")]
         public async Task<IActionResult> GetMainPhoto(int productId)
         {

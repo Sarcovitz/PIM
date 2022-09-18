@@ -1,0 +1,50 @@
+﻿.modal {
+    display: block; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
+}
+
+.square{
+    width:250px;
+    z-index:2;
+    aspect-ratio:1/1;
+    background-color:green;
+    position: absolute;
+    top:50%;
+    left:50%;
+    animation: square-rotation 4s linear infinite;
+}
+
+.ball{
+    display:block;
+    z-index:10;
+    position: absolute;
+    width:50px;
+    aspect-ratio: 1/1;
+    left:50%;
+    transform : translateX(-50%);
+    top:20px;
+    background-color:black;
+    border-radius: 100px;
+    animation: ball-jumping 1s ease-in-out infinite;
+}
+
+@keyframes square-rotation{
+    from {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+@keyframes ball-jumping{
+    50% {
+        top: 180px;
+    }
+}

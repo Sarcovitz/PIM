@@ -6,31 +6,43 @@
 @inject AuthStateProvider _authProvider;
 @inject NavigationManager _navManager;
 
-<h3>Register new user</h3>
-
 @if(!string.IsNullOrWhiteSpace(_authProvider.Message))
 {
     <h1>@_authProvider.Message</h1>
 }
 
-<EditForm Model="@registerUser" OnValidSubmit="@SignUp" style="display: flex">
-    <div style="display: flex; flex-direction: column">
-        <label for="username">User Name</label>
-        <InputText id="username" @bind-Value="registerUser.Username" />
-        <label for="email">E-mail</label>
-        <InputText id="email" @bind-Value="registerUser.Email" />
-        <label for="password">Password</label>
-        <InputText type="password" id="password" @bind-Value="registerUser.Password" />
-        <label for="password2">Repeat password</label>
-        <InputText type="password" id="password2" @bind-Value="registerUser.Password2" />
-        <br />
-        <button type="submit">Register</button>
-    </div>
-    <div>
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-    </div>
-</EditForm>
+<div class="formHolder position-absolute top-50 start-50 translate-middle display:flex">
+    <EditForm Model="@registerUser" OnValidSubmit="@SignUp">
+        <h3>Register</h3>
+
+        <div class="formFields">
+            <div class="inputHolder">
+                <label for="username">Username:</label>
+                <input type="text" id="username" @bind-value="registerUser.Username" />
+            </div>
+            <div class="inputHolder">
+                <label for="email">E-mail:</label>
+                <input type="text" id="email" @bind-value="registerUser.Email" />
+            </div>
+            <div class="inputHolder">
+                <label for="password">Password:</label>
+                <input type="password" id="password" @bind-value="registerUser.Password" />
+            </div>
+            <div class="inputHolder">
+                <label for="password2">Repeat password:</label>
+                <input type="password" id="password2" @bind-value="registerUser.Password2" />
+            </div>
+            <br />
+            <div class="inputHolder">
+                <input type="submit" value="Register"/>
+            </div>
+        </div>
+        <div>
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+        </div>
+    </EditForm>
+</div>
 
 @code 
 {

@@ -12,6 +12,11 @@
 
 <h3>CREATE PRODUCT</h3>
 
+@if(!string.IsNullOrWhiteSpace(_productService.Message))
+{
+    <text>@_productService.Message</text>
+}
+
 <EditForm Model="@createProduct" OnValidSubmit="@Create" style="display: flex">
     <div style="display: flex; flex-direction: column">
         <label for="name">Name:</label>
@@ -145,7 +150,7 @@
         createProduct.CatalogId = _stateContainer.Catalog.Id;
         await _productService.CreateAsync(createProduct);
 
-        
+
 
     }
 
@@ -160,8 +165,8 @@
             StateHasChanged();
             return;
         }
-
-        categoryProtos = await _attributeService.GetCategoryInheritedProtos(categoryId.Value);
+        if (categoryId == null) categoryProtos = new();
+        else categoryProtos = await _attributeService.GetCategoryInheritedProtos(categoryId.Value);
         foreach(var proto in categoryProtos)
         {
             productAttributes.Add(new CreateProductAttribute()

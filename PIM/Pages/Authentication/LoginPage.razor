@@ -2,29 +2,40 @@
 
 @using Blazored.LocalStorage
 @using PIM.Auth;
+@using PIM.Shared.Components
 @using PimModels.RequestModels
 
 @inject ILocalStorageService _localStorage;
 @inject NavigationManager _navManager;
 @inject AuthStateProvider _authProvider;
 
-<h3>Login</h3>
-
 @if(!string.IsNullOrWhiteSpace(_authProvider.Message))
 {
     <h1>@_authProvider.Message</h1>
 }
-<EditForm Model="@loginUser" OnValidSubmit="@SignIn">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
 
-    <label for="username">User Name</label> <br />
-    <InputText id="username" @bind-Value="loginUser.Username" /> <br />
-    <label for="password">Password</label><br />
-    <InputText type="password" id="password" @bind-Value="loginUser.Password" /><br /><br />
+<div class="formHolder position-absolute top-50 start-50 translate-middle">
+    <EditForm Model="@loginUser" OnValidSubmit="@SignIn">
+            <h3>Login</h3>
 
-    <button type="submit">Submit</button>
-</EditForm>
+            <div class="formFields">
+                <div class="inputHolder">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" @bind-value="loginUser.Username" /> <br />
+                </div>
+                <div class="inputHolder">
+                    <label for="password">Password:</label>
+                    <input type="password"  id="password" @bind-value="loginUser.Password" /><br />
+                </div>
+            </div>
+            <div class="inputHolder">
+                <input type="submit" value="Sign In"/>
+            <br />
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+        </div>
+    </EditForm>
+</div>
 
 @code 
 {

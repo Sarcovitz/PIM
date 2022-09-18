@@ -33,6 +33,20 @@ public class ProductService
         return JsonConvert.DeserializeObject<List<Product>>(content) ?? new List<Product>();
     }
 
+    public async Task<Product> GetProductAsync(int productId)
+    {
+        Product product = new Product();
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/api/Product/{productId}");
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _localStorage.GetItemAsync<string>("token"));
+
+        var response = await _httpClientFactory.CreateClient("WebApi").SendAsync(request);
+        string content = await response.Content.ReadAsStringAsync();
+        try { response.EnsureSuccessStatusCode(); }
+        catch { return product; }
+
+        return JsonConvert.DeserializeObject<Product>(content) ?? new Product();
+    }
+
     public async Task<int> CreateAsync(CreateProduct createProduct)
     {
         if (createProduct is null)
@@ -51,11 +65,37 @@ public class ProductService
         catch (Exception)
         {
             Message = content;
-            return -1;
+            return -1;  
         }
 
         Message = "Product created successfully, now You can select it on product list";
         return JsonConvert.DeserializeObject<int>(content);
+    }
+
+    public async Task<bool> UpdateAsync(int productId ,UpdateProduct updateProduct)
+    {
+        if (updateProduct is null)
+        {
+            Message = "Error. Product data is empty.";
+            return false;
+        }
+
+        var request = new HttpRequestMessage(HttpMethod.Put, $"/api/Product/{productId}");
+        request.Content = new StringContent(JsonConvert.SerializeObject(updateProduct), Encoding.UTF8, "application/json");
+        request.Headers.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await _localStorage.GetItemAsync<string>("token"));
+
+        var response = await _httpClientFactory.CreateClient("WebApi").SendAsync(request);
+        string content = await response.Content.ReadAsStringAsync();
+        try { response.EnsureSuccessStatusCode(); }
+        catch (Exception)
+        {
+            Message = content;
+            return false;
+        }
+
+        Message = "Product updated successfully.";
+        return true;
     }
 
     //public async Task<string> GetMainImage(int prodId)

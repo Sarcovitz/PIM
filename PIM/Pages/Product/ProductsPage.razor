@@ -24,6 +24,7 @@ else
                 <div>
                     Product Name: @product.Name <br>
                 </div>
+                <a href="/Product/Manage/@product.Id">UPDATE</a>
                 <div>
                     @*<img src="@($"data:{product.ProductImages[0].ContentType};base64,{await _productService.GetMainImage()}")"/>*@
                 </div>

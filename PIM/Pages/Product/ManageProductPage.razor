@@ -1,0 +1,264 @@
+﻿@page "/Product/Manage/{productId:int}"
+
+@using PIM.Data
+@using PIM.Data.Services;
+@using PimModels.Models;
+@using PimModels.RequestModels
+
+@inject ProductService _productService;
+@inject CategoryService _categoryService;
+@inject StateContainer _stateContainer;
+@inject AttributeService _attributeService;
+@inject NavigationManager _navManager;
+
+<h3>Manage Product</h3>
+
+@if(!string.IsNullOrWhiteSpace(_productService.Message))
+{
+    <text>@_productService.Message</text>
+}
+
+@if(product is null) { <text> WAIT WAIT WAIT</text> }
+else
+{
+    @if (product == new Product()) { _navManager.NavigateTo("/Catalog/List"); }
+    else
+    {
+        <EditForm Model="@updateProduct" OnValidSubmit="@Update" style="display: flex">
+            <div style="display: flex; flex-direction: column">
+                <label for="name">Name:</label>
+                <InputText id="name" @bind-Value="updateProduct.Name" />
+                <label for="sku">SKU:</label>
+                <InputText id="sku" @bind-Value="updateProduct.Sku" />
+                <label for="ean">EAN:</label>
+                <InputText id="ean" @bind-Value="updateProduct.Ean" />
+                <label for="desc">Description:</label>
+                <InputText id="desc" @bind-Value="updateProduct.Description" />
+                <label for="descHtml">Description HTML:</label>
+                <InputText id="descHtml" @bind-Value="updateProduct.DescriptionHTML" />
+                <p>Dimensions: </p>
+                <InputNumber id="width" @bind-Value="updateProduct.Width" />X
+                <InputNumber id="height" @bind-Value="updateProduct.Height" />X
+                <InputNumber id="length" @bind-Value="updateProduct.Length" />X
+                <label for="cateogory">Product category:</label>
+                <InputSelect id="category" @bind-Value="selectCategoryProp" >
+                    <option value=""></option>
+                    @foreach(var category in categories)
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                </InputSelect>
+                @foreach(var attr in productAttributes)
+                {
+                    <p>@attr.AttributeProto.Name</p>
+                    @switch(attr.AttributeProto.AttributeType)
+                    {
+                        case AttributeTypeEnum.Bool: 
+                            <InputCheckbox  @bind-Value="@attr.boolVal"/>
+                            if (attr.Value == attr.AttributeProto.DefaultValue)
+                            {
+                                <p> DEFAULT VALUE</p>
+                            }
+                            break;
+                        case AttributeTypeEnum.Integer:
+                            <InputNumber @bind-Value="@attr.intVal"></InputNumber>
+                            if (attr.Value == attr.AttributeProto.DefaultValue)
+                            {
+                                <p> DEFAULT VALUE</p>
+                            }
+                            break;
+                        case AttributeTypeEnum.Float:
+                            <InputNumber @bind-Value="@attr.floatVal" @bind-Value:format="F2"></InputNumber>
+                            if (attr.Value == attr.AttributeProto.DefaultValue)
+                            {
+                                <p> DEFAULT VALUE</p>
+                            }
+                            break;
+                        case AttributeTypeEnum.String:
+                            <InputText @bind-Value="@attr.Value"></InputText>
+                            if (attr.Value == attr.AttributeProto.DefaultValue)
+                            {
+                                <p> DEFAULT VALUE</p>
+                            }
+                            break;
+                        case AttributeTypeEnum.List:
+                            <InputSelect id="category" @bind-Value="attr.Value" >
+                                <option value=""></option>
+                                @foreach(var stringValue in attr.AttributeProto.PossibleValues.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                                {
+                                    <option value="@stringValue">@stringValue</option>
+                                }
+                            </InputSelect>
+                            if (attr.Value == attr.AttributeProto.DefaultValue)
+                            {
+                                <p> DEFAULT VALUE</p>
+                            }
+                            break;
+
+                        default: break;
+                    }
+                }
+                <div style="display:flex; flex-direction:row; column-gap:3%; flex-wrap:wrap; ">
+                    @foreach(var photo in productImages)
+                    {
+                        <div style="background-color: lightpink; width: 200px; height: 200px; flex-basis: 20%; margin-top:5px;">
+                            @if(photo.Image is null) { <p>EMPTY</p> }
+                            else
+                            {
+                                <img style="max-width:100%; max-height: 100%;" src="@string.Format($"data:{photo.ContentType};base64,{Convert.ToBase64String(photo.Image)}")">
+                                <a @onclick="() => RemoveImage(photo) "> X </a>
+                                <img/>
+                            }
+                        </div>
+                    }
+                    <InputFile @key="@(resetInput)" OnChange="InsertImage" multiple />
+                </div>
+
+
+                <br />
+                <button type="submit">CREATE</button>
+            </div>
+            <div>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+            </div>
+        </EditForm>
+    }
+}
+
+@code {
+    [Parameter]
+    public int productId { get; set; }
+
+    Product? product = null;
+    UpdateProduct updateProduct = new();
+    List<Category> categories = new();
+    List<UpdateProductAttribute> productAttributes = new();
+    List<ProductImage> productImages = new();
+    string resetInput = Guid.NewGuid().ToString();
+    private int? selectCategoryProp
+    {
+        get => updateProduct.CategoryId;
+        set
+        {
+            updateProduct.CategoryId = value == 0 ? null : value;
+            SelectCategory(value);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _productService.Message = "";
+        product = await _productService.GetProductAsync(productId);
+        categories = await _categoryService.GetAllAsync(_stateContainer.Catalog.Id);
+        foreach(var prop in updateProduct.GetType().GetProperties())
+        {
+            try
+            {
+                prop.SetValue(updateProduct, product.GetType().GetProperties().First(x => x.Name == prop.Name).GetValue(product));
+            }
+            catch { continue; }
+        }
+        productImages = product.ProductImages.OrderBy(x =>x.Id).ToList();
+        product.ProductAttributes.ForEach(x => productAttributes.Add( 
+            new UpdateProductAttribute(){ Id = x.Id, AttributeProtoId = x.AttributeProtoId, Value = x.Value, AttributeProto = x.AttributeProto}));
+
+        //updateProduct.CatalogId = product.CatalogId;
+        //updateProduct.CategoryId = product.CategoryId;
+        //updateProduct.Description = product.Description;
+        //updateProduct.DescriptionHTML = product.DescriptionHTML;
+        //updateProduct.Ean = product.Ean;
+        //updateProduct.Sku = product.Sku;
+        //updateProduct.Height = product.
+        ////updateCatalog.Name = catalog.Name;
+        ////updateCatalog.DefaultCurrencyCode = catalog.DefaultCurrencyCode;
+        ////updateCatalog.CatalogUsers = catalog.CatalogUsers;
+    }
+
+    private async void Update()
+    {
+        updateProduct.ProductImages = new();
+        productImages.ForEach(x => updateProduct.ProductImages.Add(new UpdateProductImage()
+            {
+                Id = x.Id,
+                Image = Convert.ToBase64String(x.Image ?? new byte[0]),
+                ContentType = x.ContentType
+        }));
+        updateProduct.ProductAttributes = new();
+        productAttributes.ForEach(x => updateProduct.ProductAttributes.Add(new ProductAttribute() { Value = x.Value, AttributeProtoId = x.AttributeProtoId, Id = x.Id}));
+
+        await _productService.UpdateAsync(productId, updateProduct);
+        StateHasChanged();
+
+    }
+
+    private async void SelectCategory(int? categoryId)
+    {
+        productAttributes = new();
+        var categoryProtos = new List<CategoryProductAttributeProto>();
+
+        if(categoryId == 0)
+        {
+            productAttributes.Clear();
+            StateHasChanged();
+            return;
+        }
+
+        if (categoryId.HasValue) categoryProtos = await _attributeService.GetCategoryInheritedProtos(categoryId.Value);
+        else categoryProtos = new();
+        foreach(var proto in categoryProtos)
+        {
+            productAttributes.Add(new UpdateProductAttribute()
+            {
+                Value = proto.ProductAttributeProto.DefaultValue,
+                AttributeProtoId = proto.ProductAttributeProto.Id,
+                AttributeProto = proto.ProductAttributeProto
+            });
+        }
+        StateHasChanged();
+    }
+
+    private async void InsertImage(InputFileChangeEventArgs e)
+    {
+        if (e.FileCount == 1)
+        {
+            try
+            {
+                var buffers = new byte[e.File.Size];
+                using MemoryStream ms = new();
+                await e.File.OpenReadStream(maxAllowedSize: 115242880).CopyToAsync(ms);
+                var img = productImages.First(x => x.Image == null);
+                img.Image = ms.ToArray();
+                img.ContentType = e.File.ContentType;
+                img.ProductId = productId;
+            }
+            catch { }
+        }
+        else
+        {
+            var files = e.GetMultipleFiles(productImages.Count(x => x.Image == null));
+            foreach (var file in files)
+            {
+                try
+                {
+                    using MemoryStream ms = new();
+                    await file.OpenReadStream(maxAllowedSize: 115242880).CopyToAsync(ms);
+                    var img = productImages.First(x => x.Image == null);
+                    img.Image = ms.ToArray();
+                    img.ContentType = file.ContentType;
+                    img.ProductId = productId;
+                }
+                catch(Exception ex) {}
+            }
+        }
+        resetInput = Guid.NewGuid().ToString();
+        StateHasChanged();
+    }
+
+    public void RemoveImage(ProductImage img)
+    {
+        productImages.Remove(img);
+        productImages.Add(new ProductImage());
+        StateHasChanged();
+    }
+}

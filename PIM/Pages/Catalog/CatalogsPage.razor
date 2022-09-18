@@ -2,39 +2,48 @@
 
 @using PIM.Data
 @using PIM.Data.Services
+@using PIM.Shared.Components
 @using PimModels.Models
 
 @inject NavigationManager _navManager
 @inject StateContainer _stateContainer
 @inject CatalogService _catalogService
 
+<div class = "container">
+    <h3>Catalogs</h3>
+    <div class="buttonNewHolder">
+    <a class="buttonNew" href="/Catalog/Create">
+        <span class="oi oi-plus aria-hidden="true"></span>
+        <p>ADD NEW</p>
+    </a>
+    </div>
 
-<h3>CatalogsPage</h3>
-<a href="/Catalog/Create">ADD NEW CATALOG</a>
-
-@if(catalogs == null) { <text> WAIT </text> }
-else
-{
-    @if (catalogs.Count == 0) { _navManager.NavigateTo("/Catalog/Create"); }
+    @if(catalogs == null) { <Loading></Loading> }
     else
     {
-        @foreach (var catalog in catalogs)
+        @if (catalogs.Count == 0) { _navManager.NavigateTo("/Catalog/Create"); }
+        else
         {
-            <div style="border: solid 2px black; display:flex;">
-                <div>
-                    Catalog Name: @catalog.Name <br>
-                    Default currency: @catalog.DefaultCurrencyCode <br>
-                    Owner: @catalog.CatalogUsers.First(x => x.Role == CatalogUserRole.Owner).User.Username <br>
+            <div class="catalogsHolder">
+            @foreach (var catalog in catalogs)
+            {
+                <div class="catalogHolder">
+                    <div class="leftCol">
+                        Catalog Name: @catalog.Name <br>
+                        Default currency: @catalog.DefaultCurrencyCode <br>
+                        Owner: @catalog.CatalogUsers.First(x => x.Role == CatalogUserRole.Owner).User.Username <br>
+                    </div>
+                    <div class="rightCol">
+                        @if(_stateContainer.Catalog != catalog) {<a @onclick="async () => await _stateContainer.SetCatalog(catalog)">SELECT</a>}
+                        <a href="/Catalog/Delete/@catalog.Id">DELETE</a>
+                        <a href="/Catalog/Manage/@catalog.Id">MANAGE</a>
+                    </div>
                 </div>
-                <div>
-                    @if(_stateContainer.Catalog != catalog) {<a @onclick="async () => await _stateContainer.SetCatalog(catalog)">SELECT</a>}
-                    <a href="/Catalog/Delete/@catalog.Id">DELETE</a>
-                    <a href="/Catalog/Manage/@catalog.Id">MANAGE</a>
-                </div>
+            }
             </div>
         }
     }
-}
+</div>
 
 @code {
     private List<Catalog>? catalogs = null;
