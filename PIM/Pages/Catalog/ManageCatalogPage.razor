@@ -10,50 +10,60 @@
 @inject CurrencyService _currencyService
 @inject UserService _userService
 
-<h3>Manage Catalog</h3>
+<div class="container">
 
-@if(!string.IsNullOrWhiteSpace(_catalogService.Message))
-{
-    <text>@_catalogService.Message</text>
-}
+    @if(!string.IsNullOrWhiteSpace(_catalogService.Message))
+    {
+        <text>@_catalogService.Message</text>
+    }
 
-@if(catalog is null) { <text> WAIT WAIT WAIT</text> }
-else
-{
-    @if (catalog == new Catalog()) { _navManager.NavigateTo("/Catalog/List"); }
+    @if(catalog is null) { <text> WAIT WAIT WAIT</text> }
     else
     {
-        <EditForm Model="@updateCatalog" OnValidSubmit="@Update" style="display: flex">
-            <div style="display: flex; flex-direction: column">
-                <label for="name">Catalog name:</label>
-                <InputText id="name" @bind-Value="updateCatalog.Name" />
-                <label for="defaultCurrency">Default currency:</label>
-                <InputSelect id="defaultCurrency" @bind-Value="updateCatalog.DefaultCurrencyCode" >
-                    <option value=""></option>
-                    @foreach(var currency in currencies)
-                    {
-                        <option value="@currency.Code">@currency.Fullname</option>
-                    }
-                </InputSelect>
-                <br />
-                <text>Users:</text>
-                @if(updateCatalog.CatalogUsers.Where(x=>x.Role != CatalogUserRole.Owner).ToList().Count > 0)
-                {
-                    @foreach(var catalogUser in updateCatalog.CatalogUsers.Where(x=>x.Role != CatalogUserRole.Owner).ToList())
-                    {
-                        <text>@catalogUser.User.Username</text>
-                        <a @onclick=@(() => updateCatalog.CatalogUsers.Remove(catalogUser))> DELETE</a>
-                    }
-                }
-                <input type="text" @bind="@newUserUsername"></input>
-                <a @onclick=@(() => AddUserAsync(newUserUsername))> ADD NEW USER</a> <text>@addUserMessage</text>
-                <button type="submit">Register</button>
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-            </div>
-    </EditForm>
+        @if (catalog == new Catalog()) { _navManager.NavigateTo("/Catalog/List"); }
+        else
+        {
+            <div class="formHolder">
+                <h3>Manage Catalog</h3>
+                <EditForm Model="@updateCatalog" OnValidSubmit="@Update" style="display: flex">
+                    <div class="formFields">
+                        <div class="flex-row">
+                            <div class="inputHolder">
+                                <label for="name">Catalog name:</label>
+                                <input type="text" id="name" @bind-value="updateCatalog.Name" />
+                            </div>
+                            <div class="inputHolder">
+                            <label for="defaultCurrency">Default currency:</label>
+                            <select id="defaultCurrency" @bind="updateCatalog.DefaultCurrencyCode" >
+                                <option class="opt-x" value=""></option>
+                                @foreach(var currency in currencies)
+                                {
+                                    <option value="@currency.Code">@currency.Fullname</option>
+                                }
+                            </select>
+                            </div>
+                        </div>
+                        <br />
+                        <text>Users:</text>
+                        @if(updateCatalog.CatalogUsers.Where(x=>x.Role != CatalogUserRole.Owner).ToList().Count > 0)
+                        {
+                            @foreach(var catalogUser in updateCatalog.CatalogUsers.Where(x=>x.Role != CatalogUserRole.Owner).ToList())
+                            {
+                                <text>@catalogUser.User.Username</text>
+                                <a @onclick=@(() => updateCatalog.CatalogUsers.Remove(catalogUser))> DELETE</a>
+                            }
+                        }
+                        <input type="text" @bind="@newUserUsername"></input>
+                        <a @onclick=@(() => AddUserAsync(newUserUsername))> ADD NEW USER</a> <text>@addUserMessage</text>
+                        <button type="submit">Register</button>
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                    </div>
+            </EditForm>
+        </div>
+        }
     }
-}
+</div>
 
 
 

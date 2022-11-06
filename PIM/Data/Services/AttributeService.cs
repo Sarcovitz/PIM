@@ -103,7 +103,7 @@ namespace PIM.Data.Services
         {
             if (createProto is null)
             {
-                Message = "Error. Catalog data is empty.";
+                Message = "Error. Attribute prototype data is empty.";
                 return -1;
             }
 

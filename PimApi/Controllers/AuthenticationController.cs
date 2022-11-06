@@ -42,13 +42,12 @@ public class AuthenticationController : ControllerBase
     public async Task<IActionResult> CurrentUser()
     {
         int userId = Convert.ToInt32(User.FindFirst("Id").Value);
-        Console.WriteLine("user id:" + userId);
         User? user = await _authenticationService.GetCurrentUserAsync(userId);
         if (user is not null)
         {
             user.Password = "";
             return Ok(user);
         }
-        else return NotFound("xd");
+        else return NotFound($"There is no user with this id: {userId}");
     }
 }

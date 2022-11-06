@@ -8,7 +8,6 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["PIM/PIM.csproj", "PIM/"]
-COPY ["PimModels/PimModels.csproj", "PimModels/"]
 RUN dotnet restore "PIM/PIM.csproj"
 COPY . .
 WORKDIR "/src/PIM"

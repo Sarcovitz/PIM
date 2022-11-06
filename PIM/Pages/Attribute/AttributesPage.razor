@@ -1,14 +1,16 @@
 ﻿@page "/Attributes"
 
+@using PIM.Data
 @using PIM.Data.Services
 @using PimModels.Models
 
 @inject AttributeService _attributeService
 @inject NavigationManager _navManager
+@inject StateContainer _stateContainer
 
 <h3>AttributesPage</h3>
 
-<a href="/Attribute/Create">ADD NEW CATALOG</a>
+<a href="/Attribute/Create">ADD NEW ATTRIBUTE PROTOTYPE</a>
 
 @if(attributeProtos == null) { <text> WAIT </text> }
 else
@@ -36,6 +38,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        attributeProtos = await _attributeService.GetAllProtosAsync();
+        attributeProtos = await _attributeService.GetAllCatalogProtosAsync(_stateContainer.Catalog.Id);
     }
 }

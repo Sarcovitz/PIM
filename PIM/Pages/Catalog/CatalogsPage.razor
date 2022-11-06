@@ -34,9 +34,11 @@
                         Owner: @catalog.CatalogUsers.First(x => x.Role == CatalogUserRole.Owner).User.Username <br>
                     </div>
                     <div class="rightCol">
-                        @if(_stateContainer.Catalog != catalog) {<a @onclick="async () => await _stateContainer.SetCatalog(catalog)">SELECT</a>}
-                        <a href="/Catalog/Delete/@catalog.Id">DELETE</a>
-                        <a href="/Catalog/Manage/@catalog.Id">MANAGE</a>
+                        <a @onclick="async () => await _stateContainer.SetCatalog(catalog)" class="@(_stateContainer.Catalog != catalog ? "a-select" : "a-selected")">
+                            <text> @(_stateContainer.Catalog != catalog ? "SELECT" : "ACTIVE")</text>
+                        </a>
+                        <a href="/Catalog/Manage/@catalog.Id" class="a-manage">MANAGE</a>
+                        <a href="/Catalog/Delete/@catalog.Id" class="a-delete">DELETE</a>
                     </div>
                 </div>
             }
