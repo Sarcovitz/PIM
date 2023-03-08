@@ -1,0 +1,30 @@
+﻿
+@using PIM.Auth
+@using PIM.Data
+@inherits LayoutComponentBase
+
+@inject AuthStateProvider _authPrivider
+@inject StateContainer _stateContainer
+
+<PageTitle>PIM</PageTitle>
+
+<div class="page">
+         <div class="sidebar">
+        <NavMenu />
+        </div>
+    <main>
+        <article class ="content px-4 position-relative h-100">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code
+{
+    protected override async Task OnInitializedAsync()
+        => _stateContainer.OnChange += StateHasChanged;
+    
+
+    public void Dispose()
+        => _stateContainer.OnChange -= StateHasChanged;
+}

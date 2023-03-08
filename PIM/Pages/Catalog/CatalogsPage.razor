@@ -9,49 +9,46 @@
 @inject StateContainer _stateContainer
 @inject CatalogService _catalogService
 
-<div class = "container">
-    <h3>Catalogs</h3>
-    <div class="buttonNewHolder">
-    <a class="buttonNew" href="/Catalog/Create">
-        <span class="oi oi-plus aria-hidden="true"></span>
-        <p>ADD NEW</p>
-    </a>
-    </div>
+    <div class = "container">
+        <h3>Catalogs</h3>
+        <div class="buttonNewHolder">
+        <a class="buttonNew" href="/Catalog/Create">
+            <span class="oi oi-plus aria-hidden="true"></span>
+            <p>ADD NEW</p>
+        </a>
+        </div>
 
-    @if(catalogs == null) { <Loading></Loading> }
-    else
-    {
-        @if (catalogs.Count == 0) { _navManager.NavigateTo("/Catalog/Create"); }
+        @if(catalogs == null) { <p> LOADING ...</p> }
         else
         {
-            <div class="catalogsHolder">
-            @foreach (var catalog in catalogs)
+            @if (catalogs.Count == 0) { _navManager.NavigateTo("/Catalog/Create"); }
+            else
             {
-                <div class="catalogHolder">
-                    <div class="leftCol">
-                        Catalog Name: @catalog.Name <br>
-                        Default currency: @catalog.DefaultCurrencyCode <br>
-                        Owner: @catalog.CatalogUsers.First(x => x.Role == CatalogUserRole.Owner).User.Username <br>
+                <div class="catalogsHolder">
+                @foreach (var catalog in catalogs)
+                {
+                    <div class="catalogHolder">
+                        <div class="leftCol">
+                            Catalog Name: @catalog.Name <br>
+                            Default currency: @catalog.DefaultCurrencyCode <br>
+                            Owner: @catalog.CatalogUsers.First(x => x.Role == CatalogUserRole.Owner).User.Username <br>
+                        </div>
+                        <div class="rightCol">
+                            <a @onclick="async () => await _stateContainer.SetCatalog(catalog)" 
+                                class="@(_stateContainer.Catalog != catalog ? "a-select" : "a-selected")">
+                                <text> @(_stateContainer.Catalog != catalog ? "SELECT" : "ACTIVE")</text>
+                            </a>
+                            <a href="/Catalog/Manage/@catalog.Id" class="a-manage">MANAGE</a>
+                            <a href="/Catalog/Delete/@catalog.Id" class="a-delete">DELETE</a>
+                        </div>
                     </div>
-                    <div class="rightCol">
-                        <a @onclick="async () => await _stateContainer.SetCatalog(catalog)" class="@(_stateContainer.Catalog != catalog ? "a-select" : "a-selected")">
-                            <text> @(_stateContainer.Catalog != catalog ? "SELECT" : "ACTIVE")</text>
-                        </a>
-                        <a href="/Catalog/Manage/@catalog.Id" class="a-manage">MANAGE</a>
-                        <a href="/Catalog/Delete/@catalog.Id" class="a-delete">DELETE</a>
-                    </div>
+                }
                 </div>
             }
-            </div>
         }
-    }
-</div>
+    </div>
 
-@code {
-    private List<Catalog>? catalogs = null;
-
-    protected override async Task OnInitializedAsync()
-    {
-        catalogs = await _catalogService.GetAllAsync();
+    @code {
+        private List<Catalog>? catalogs = null;
+        protected override async Task OnInitializedAsync() => catalogs = await _catalogService.GetAllAsync();
     }
-}
